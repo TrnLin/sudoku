@@ -1,9 +1,13 @@
-import java.util.*;
+package org.example.algorithms;
+
+import org.example.classes.IntSet;
+import org.example.classes.IntList;
+import org.example.classes.IntArrayList;
 
 public class Constraint_Propagation {
     private final int N;
     private final int SUBGRID;
-    private Set<Integer>[][] domains;
+    private IntSet[][] domains;
 
     public Constraint_Propagation(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
@@ -14,12 +18,11 @@ public class Constraint_Propagation {
         this.domains = createEmptyDomains();
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<Integer>[][] createEmptyDomains() {
-        Set<Integer>[][] temp = (Set<Integer>[][]) new HashSet[N][N];
+    private IntSet[][] createEmptyDomains() {
+        IntSet[][] temp = new IntSet[N][N];
         for (int i = 0; i < N; i++)
             for (int j = 0; j < N; j++)
-                temp[i][j] = new HashSet<>();
+                temp[i][j] = new IntSet(N);
         return temp;
     }
 
@@ -43,8 +46,10 @@ public class Constraint_Propagation {
                 if (val != 0) {
                     domains[row][col].clear();
                     domains[row][col].add(val);
-                    for (int[] peer : getPeers(row, col)) {
-                        domains[peer[0]][peer[1]].remove(val);
+                    for (int[] peer : getPeers(row, col).elements) {
+                        if (peer != null) {
+                            domains[peer[0]][peer[1]].remove(val);
+                        }
                     }
                 }
             }
@@ -56,12 +61,20 @@ public class Constraint_Propagation {
         if (cell == null) return true;
 
         int row = cell[0], col = cell[1];
-        List<Integer> values = new ArrayList<>(domains[row][col]);
+        IntList values = new IntList(N);
+        
+        // Convert domain to IntList for iteration
+        for (int val = 1; val <= N; val++) {
+            if (domains[row][col].contains(val)) {
+                values.add(val);
+            }
+        }
 
-        for (int value : values) {
+        for (int i = 0; i < values.size(); i++) {
+            int value = values.get(i);
             if (isSafe(board, row, col, value)) {
                 int[][] boardCopy = copyBoard(board);
-                Set<Integer>[][] domainCopy = copyDomains();
+                IntSet[][] domainCopy = copyDomains();
 
                 board[row][col] = value;
                 domains[row][col].clear();
@@ -87,9 +100,12 @@ public class Constraint_Propagation {
                 for (int col = 0; col < N; col++) {
                     if (board[row][col] != 0) {
                         int val = board[row][col];
-                        for (int[] peer : getPeers(row, col)) {
+                        IntArrayList peers = getPeers(row, col);
+                        for (int i = 0; i < peers.size(); i++) {
+                            int[] peer = peers.get(i);
                             int r = peer[0], c = peer[1];
-                            if (domains[r][c].remove(val)) {
+                            if (domains[r][c].contains(val)) {
+                                domains[r][c].remove(val);
                                 changed = true;
                                 if (domains[r][c].isEmpty()) return false;
                             }
@@ -133,12 +149,11 @@ public class Constraint_Propagation {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<Integer>[][] copyDomains() {
-        Set<Integer>[][] copy = (Set<Integer>[][]) new HashSet[N][N];
+    private IntSet[][] copyDomains() {
+        IntSet[][] copy = new IntSet[N][N];
         for (int i = 0; i < N; i++)
             for (int j = 0; j < N; j++)
-                copy[i][j] = new HashSet<>(domains[i][j]);
+                copy[i][j] = new IntSet(domains[i][j]);
         return copy;
     }
 
@@ -158,8 +173,8 @@ public class Constraint_Propagation {
         return true;
     }
 
-    private List<int[]> getPeers(int row, int col) {
-        List<int[]> peers = new ArrayList<>();
+    private IntArrayList getPeers(int row, int col) {
+        IntArrayList peers = new IntArrayList(3 * N); // Approximate size needed
 
         for (int i = 0; i < N; i++) {
             if (i != col) peers.add(new int[]{row, i});
@@ -211,7 +226,6 @@ public class Constraint_Propagation {
                 {0, 0, 0, 0,  0, 0, 5, 0,  0, 0, 0, 0,  0, 0, 0, 0},
                 {0, 0, 0, 0,  0, 0, 0, 6,  0, 0, 0, 0,  0, 0, 0, 0}
         };
-
 
         Constraint_Propagation solver = new Constraint_Propagation(16);
         if (solver.solve(puzzle)) {

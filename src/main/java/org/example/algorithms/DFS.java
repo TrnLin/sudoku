@@ -1,4 +1,3 @@
-import java.util.Arrays;
 public class DFS {
     /**
  * Solves the given Sudoku board using backtracking algorithm.

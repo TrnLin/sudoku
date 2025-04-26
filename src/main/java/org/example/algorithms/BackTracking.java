@@ -1,4 +1,4 @@
-package org.example;
+package org.example.algorithms;
 
 //Implemented by Linh 
 public class BackTracking {
