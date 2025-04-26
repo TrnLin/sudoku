@@ -1,4 +1,4 @@
-package org.example.classes;
+package org.example.model;
 
 public class IntSet {
     public boolean[] elements;

@@ -1,3 +1,5 @@
+package org.example.algorithms;
+
 public class RecursiveBacktracking {
 
     public boolean solve(int[][] board) {

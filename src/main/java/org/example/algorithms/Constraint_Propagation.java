@@ -1,8 +1,8 @@
 package org.example.algorithms;
 
-import org.example.classes.IntSet;
-import org.example.classes.IntList;
-import org.example.classes.IntArrayList;
+import org.example.model.IntSet;
+import org.example.model.IntList;
+import org.example.model.IntArrayList;
 
 public class Constraint_Propagation {
     private final int N;
@@ -62,7 +62,7 @@ public class Constraint_Propagation {
 
         int row = cell[0], col = cell[1];
         IntList values = new IntList(N);
-        
+
         // Convert domain to IntList for iteration
         for (int val = 1; val <= N; val++) {
             if (domains[row][col].contains(val)) {

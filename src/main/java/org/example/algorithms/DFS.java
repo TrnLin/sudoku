@@ -1,3 +1,5 @@
+package org.example.algorithms;
+
 public class DFS {
     /**
  * Solves the given Sudoku board using backtracking algorithm.
