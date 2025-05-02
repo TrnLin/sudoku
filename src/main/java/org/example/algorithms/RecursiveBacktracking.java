@@ -1,5 +1,7 @@
 package org.example.algorithms;
 
+import org.example.utils.BoardPrinter;
+
 public class RecursiveBacktracking {
 
     public boolean solve(int[][] board) {
@@ -48,18 +50,6 @@ public class RecursiveBacktracking {
         return true;
     }
 
-    public void printBoard(int[][] board) {
-        int N = board.length;
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                System.out.print(board[i][j] + " ");
-            }
-            System.out.println();
-        }
-    }
-
-
     public static void main (String[] args){
         int[][] board9x9 = {
                 {0, 0, 0, 8, 6, 4, 0, 0, 0},
@@ -92,7 +82,6 @@ public class RecursiveBacktracking {
                 {0, 0, 14, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0}
         };
 
-
         int[][] board25x25 = {
                 {12, 14, 0, 0, 0, 0, 0, 0, 0, 9, 0, 25, 0, 0, 1, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0},
                 {9, 17, 15, 0, 0, 22, 6, 0, 3, 13, 0, 11, 8, 14, 7, 25, 0, 0, 12, 0, 0, 0, 0, 0, 0},
@@ -121,21 +110,15 @@ public class RecursiveBacktracking {
                 {0, 0, 0, 0, 0, 12, 3, 0, 0, 0, 0, 21, 4, 15, 0, 16, 10, 24, 7, 0, 17, 0, 8, 5, 13}
         };
 
-
         RecursiveBacktracking solver = new RecursiveBacktracking();
 
         solver.solve(board9x9);
+        BoardPrinter.printBoardFormatted(board9x9, "9x9 Solution:");
 
         //solver.solve(board16x16);
+        //BoardPrinter.printBoardFormatted(board16x16, "16x16 Solution:");
 
         //solver.solve(board25x25);
-
-        solver.printBoard(board9x9);
-
-        //solver.printBoard(board16x16);
-
-        //solver.printBoard(board25x25);
-
+        //BoardPrinter.printBoardFormatted(board25x25, "25x25 Solution:");
     }
-
 }

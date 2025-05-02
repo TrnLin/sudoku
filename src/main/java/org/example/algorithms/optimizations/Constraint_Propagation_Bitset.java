@@ -1,29 +1,32 @@
-package org.example.algorithms;
+package org.example.algorithms.optimizations;
 
-import org.example.models.IntSet;
 import org.example.models.IntList;
 import org.example.models.IntArrayList;
 import org.example.utils.BoardPrinter;
 
-public class Constraint_Propagation {
+public class Constraint_Propagation_Bitset {
     private final int N;
     private final int SUBGRID;
-    private IntSet[][] domains;
+    private final int FULL_MASK;
+    private int[][] domains;
 
-    public Constraint_Propagation(int N) {
+    public Constraint_Propagation_Bitset(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square (e.g., 4, 9, 16)");
         }
         this.N = N;
         this.SUBGRID = (int) Math.sqrt(N);
+        this.FULL_MASK = (1 << N) - 1;
         this.domains = createEmptyDomains();
     }
 
-    private IntSet[][] createEmptyDomains() {
-        IntSet[][] temp = new IntSet[N][N];
-        for (int i = 0; i < N; i++)
-            for (int j = 0; j < N; j++)
-                temp[i][j] = new IntSet(N);
+    private int[][] createEmptyDomains() {
+        int[][] temp = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                temp[i][j] = FULL_MASK;
+            }
+        }
         return temp;
     }
 
@@ -33,23 +36,23 @@ public class Constraint_Propagation {
     }
 
     private void initializeDomains(int[][] board) {
+        // Start with all values allowed
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
-                for (int val = 1; val <= N; val++) {
-                    domains[row][col].add(val);
-                }
+                domains[row][col] = FULL_MASK;
             }
         }
 
+        // Apply initial assignments
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 int val = board[row][col];
                 if (val != 0) {
-                    domains[row][col].clear();
-                    domains[row][col].add(val);
+                    domains[row][col] = bit(val);
                     for (int[] peer : getPeers(row, col).elements) {
                         if (peer != null) {
-                            domains[peer[0]][peer[1]].remove(val);
+                            int r = peer[0], c = peer[1];
+                            domains[r][c] &= ~bit(val);
                         }
                     }
                 }
@@ -64,9 +67,9 @@ public class Constraint_Propagation {
         int row = cell[0], col = cell[1];
         IntList values = new IntList(N);
 
-        // Convert domain to IntList for iteration
+        // Collect allowed values in this domain
         for (int val = 1; val <= N; val++) {
-            if (domains[row][col].contains(val)) {
+            if ((domains[row][col] & bit(val)) != 0) {
                 values.add(val);
             }
         }
@@ -75,11 +78,10 @@ public class Constraint_Propagation {
             int value = values.get(i);
             if (isSafe(board, row, col, value)) {
                 int[][] boardCopy = copyBoard(board);
-                IntSet[][] domainCopy = copyDomains();
+                int[][] domainCopy = copyDomains();
 
                 board[row][col] = value;
-                domains[row][col].clear();
-                domains[row][col].add(value);
+                domains[row][col] = bit(value);
 
                 if (propagateConstraints(board) && forwardCheck(board))
                     return true;
@@ -105,10 +107,11 @@ public class Constraint_Propagation {
                         for (int i = 0; i < peers.size(); i++) {
                             int[] peer = peers.get(i);
                             int r = peer[0], c = peer[1];
-                            if (domains[r][c].contains(val)) {
-                                domains[r][c].remove(val);
+                            int mask = domains[r][c];
+                            if ((mask & bit(val)) != 0) {
+                                domains[r][c] = mask & ~bit(val);
                                 changed = true;
-                                if (domains[r][c].isEmpty()) return false;
+                                if (domains[r][c] == 0) return false;
                             }
                         }
                     }
@@ -125,7 +128,7 @@ public class Constraint_Propagation {
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 if (board[row][col] == 0) {
-                    int size = domains[row][col].size();
+                    int size = Integer.bitCount(domains[row][col]);
                     if (size < minSize) {
                         minSize = size;
                         selected = new int[]{row, col};
@@ -139,8 +142,9 @@ public class Constraint_Propagation {
 
     private int[][] copyBoard(int[][] board) {
         int[][] newBoard = new int[N][N];
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < N; i++) {
             System.arraycopy(board[i], 0, newBoard[i], 0, N);
+        }
         return newBoard;
     }
 
@@ -150,49 +154,49 @@ public class Constraint_Propagation {
         }
     }
 
-    private IntSet[][] copyDomains() {
-        IntSet[][] copy = new IntSet[N][N];
-        for (int i = 0; i < N; i++)
-            for (int j = 0; j < N; j++)
-                copy[i][j] = new IntSet(domains[i][j]);
+    private int[][] copyDomains() {
+        int[][] copy = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            System.arraycopy(domains[i], 0, copy[i], 0, N);
+        }
         return copy;
     }
 
     private boolean isSafe(int[][] board, int row, int col, int val) {
-        for (int i = 0; i < N; i++)
-            if (board[row][i] == val || board[i][col] == val)
-                return false;
-
-        int boxRow = (row / SUBGRID) * SUBGRID;
-        int boxCol = (col / SUBGRID) * SUBGRID;
-
-        for (int i = 0; i < SUBGRID; i++)
-            for (int j = 0; j < SUBGRID; j++)
-                if (board[boxRow + i][boxCol + j] == val)
-                    return false;
-
-        return true;
-    }
-
-    private IntArrayList getPeers(int row, int col) {
-        IntArrayList peers = new IntArrayList(3 * N); // Approximate size needed
-
+        int bit = bit(val);
+        // Row & column
         for (int i = 0; i < N; i++) {
-            if (i != col) peers.add(new int[]{row, i});
-            if (i != row) peers.add(new int[]{i, col});
+            if (board[row][i] == val || board[i][col] == val) return false;
         }
-
+        // Subgrid
         int boxRow = (row / SUBGRID) * SUBGRID;
         int boxCol = (col / SUBGRID) * SUBGRID;
         for (int i = 0; i < SUBGRID; i++) {
             for (int j = 0; j < SUBGRID; j++) {
-                int r = boxRow + i;
-                int c = boxCol + j;
-                if (r != row || c != col)
-                    peers.add(new int[]{r, c});
+                if (board[boxRow + i][boxCol + j] == val) return false;
             }
         }
+        return true;
+    }
 
+    private int bit(int val) {
+        return 1 << (val - 1);
+    }
+
+    private IntArrayList getPeers(int row, int col) {
+        IntArrayList peers = new IntArrayList(3 * N);
+        for (int i = 0; i < N; i++) {
+            if (i != col) peers.add(new int[]{row, i});
+            if (i != row) peers.add(new int[]{i, col});
+        }
+        int boxRow = (row / SUBGRID) * SUBGRID;
+        int boxCol = (col / SUBGRID) * SUBGRID;
+        for (int i = 0; i < SUBGRID; i++) {
+            for (int j = 0; j < SUBGRID; j++) {
+                int r = boxRow + i, c = boxCol + j;
+                if (r != row || c != col) peers.add(new int[]{r, c});
+            }
+        }
         return peers;
     }
 
@@ -202,26 +206,23 @@ public class Constraint_Propagation {
                 {0, 0, 0, 0,  0, 7, 0, 4,  0, 0, 0, 0,  0, 0, 0, 0},
                 {5, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 6, 0},
                 {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  7, 0, 0, 0},
-
                 {0, 0, 0, 0,  0, 0, 0, 0,  9, 0, 0, 0,  0, 0, 0, 0},
                 {0, 0, 0, 0,  0, 0, 0, 0,  0, 6, 0, 0,  0, 0, 0, 0},
                 {0, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
                 {0, 0, 0, 2,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
-
                 {0, 0, 0, 0,  0, 0, 0, 0,  8, 0, 0, 0,  0, 0, 0, 0},
                 {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 3,  0, 0, 0, 0},
                 {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 5, 0, 0},
                 {0, 0, 0, 9,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1},
-
                 {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
                 {0, 3, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
                 {0, 0, 0, 0,  0, 0, 5, 0,  0, 0, 0, 0,  0, 0, 0, 0},
                 {0, 0, 0, 0,  0, 0, 0, 6,  0, 0, 0, 0,  0, 0, 0, 0}
         };
 
-        Constraint_Propagation solver = new Constraint_Propagation(16);
+        Constraint_Propagation_Bitset solver = new Constraint_Propagation_Bitset(16);
         if (solver.solve(puzzle)) {
-            BoardPrinter.printBoardFormatted(puzzle,"Solution:");
+            BoardPrinter.printBoardFormatted(puzzle, "16x16 Puzzle Solution:");
         } else {
             System.out.println("No solution found.");
         }

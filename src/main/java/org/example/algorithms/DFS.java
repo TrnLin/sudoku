@@ -1,5 +1,7 @@
 package org.example.algorithms;
 
+import org.example.utils.BoardPrinter;
+
 public class DFS {
     /**
  * Solves the given Sudoku board using backtracking algorithm.
@@ -81,7 +83,7 @@ public class DFS {
             {0, 6, 0, 0, 0, 0, 2, 8, 0},
             {0, 0, 0, 4, 1, 9, 0, 0, 5},
             {0, 0, 0, 0, 8, 0, 0, 7, 9}
-                };
+        };
 
         int[][] board2 = {
                 {0, 0, 0, 3, 7, 4, 0, 0, 0, 0, 0, 0, 2, 0, 0, 10},
@@ -109,7 +111,9 @@ public class DFS {
         boolean result2 = dfs.solveSudoku(board2);
 
         System.out.println("Board 1 solvable: " + result1);
-        System.out.println("Board 2 solvable: " + result2);
-
+        BoardPrinter.printBoard(board1);
+        System.out.println("\nBoard 2 solvable: " + result2);
+        BoardPrinter.printBoard(board2);
     }
 }
+

@@ -1,5 +1,7 @@
 package org.example.algorithms;
 
+import org.example.utils.BoardPrinter;
+
 //Implemented by Linh 
 public class BackTracking {
     //Declare the variables
@@ -122,17 +124,6 @@ public class BackTracking {
         return false;
     }
 
-    // Prints the solved Sudoku board
-    public void printBoard() {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                System.out.print(board[i][j] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
     //Main method
     public static void main(String[] args) {
         int[][] sampleBoard16x16 = {
@@ -154,7 +145,6 @@ public class BackTracking {
                 {0, 0, 0, 13, 0, 0, 14, 0, 2, 0, 8, 0, 9, 0, 7, 0}
         };
 
-
         long startTime = System.nanoTime();
 
         BackTracking solver = new BackTracking(sampleBoard16x16);
@@ -162,15 +152,13 @@ public class BackTracking {
         if (solver.solve()) {
             long endTime = System.nanoTime();
             long durationNs = (long) ((endTime - startTime) / 1000000.0); // Convert to milliseconds
-           // Convert to milliseconds
+            // Convert to milliseconds
             System.out.println("Sudoku solved in " + durationNs + " ms.");
             long memoryUsageBytes = (long) sampleBoard16x16.length * sampleBoard16x16[0].length * Integer.BYTES;
             System.out.println("Approximate memory usage: " + memoryUsageBytes + " bytes.");
-            solver.printBoard();
+            BoardPrinter.printBoardFormatted(sampleBoard16x16, "16x16 Solution:");
         } else {
             System.out.println("No solution found.");
         }
-
-        
     }
 }
