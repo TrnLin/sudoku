@@ -167,12 +167,20 @@ const App: React.FC = () => {
         </div>
 
         {/* Right Column: Grid */}
-        <SudokuGrid
-          board={board}
-          fixedCells={fixedCells}
-          currentN={currentN}
-          onCellChange={handleCellChange}
-        />
+        {board && board.length > 0 ? (
+          <SudokuGrid
+            board={board}
+            fixedCells={fixedCells}
+            currentN={currentN}
+            onCellChange={handleCellChange}
+          />
+        ) : (
+          <div className='flex items-center justify-center h-full bg-gray-50 rounded-lg'>
+            <p className='text-gray-500 text-lg'>
+              Generate a puzzle to get started
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
