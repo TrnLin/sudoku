@@ -1,15 +1,13 @@
 import React, { useState, useCallback } from "react";
-import { generatePuzzle } from "./generateSudoku"; // Assuming this path is correct
-import SudokuGenerator from "./components/sudoku/SudokuGenerator"; // Adjust path if needed
-import SudokuSolver from "./components/sudoku/SudokuSolver"; // Adjust path if needed
-import SudokuGrid from "./components/sudoku/SudokuBoard"; // Adjust path if needed
-
+import { generatePuzzle } from "./generateSudoku";
+import SudokuGenerator from "./components/sudoku/SudokuGenerator";
+import SudokuSolver from "./components/sudoku/SudokuSolver";
+import SudokuGrid from "./components/sudoku/SudokuBoard";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosResponse } from "axios";
 
-// Keep response interface and schema here as they relate to App's state/logic
 interface FormResponse {
   solveBoard: number[][];
   time: number;
@@ -20,50 +18,82 @@ const FormSchema = z.object({
 });
 
 const App: React.FC = () => {
+  // Board state
   const [currentN, setCurrentN] = useState<number>(3);
   const [board, setBoard] = useState<number[][]>([]);
   const [fixedCells, setFixedCells] = useState<boolean[][]>([]);
-  const [errorGenerator, setErrorGenerator] = useState<string | null>(null);
-  const [errorSolver, setErrorSolver] = useState<string | null>(null);
-  const [time, setTime] = useState<number | null>(null);
+
+  // Mode state
+  const [isManualMode, setIsManualMode] = useState<boolean>(false);
+
+  // Status state
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isSolving, setIsSolving] = useState<boolean>(false);
 
+  // Error and timing state
+  const [errorGenerator, setErrorGenerator] = useState<string | null>(null);
+  const [errorSolver, setErrorSolver] = useState<string | null>(null);
+  const [time, setTime] = useState<number | null>(null);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      board: [], // Initialize empty, will be set before submit
-    },
+    defaultValues: { board: [] },
   });
 
-  const handleGenerate = useCallback((n: number) => {
-    setIsGenerating(true);
-    setErrorGenerator(null);
-    setErrorSolver(null); // Clear solver error on new generation
-    setBoard([]); // Clear board immediately
-    setFixedCells([]);
-    setTime(null);
-    setCurrentN(n); // Set currentN here based on input from generator
+  const initializeEmptyBoard = useCallback((n: number) => {
+    const size = n * n;
+    return Array(size)
+      .fill(0)
+      .map(() => Array(size).fill(0));
+  }, []);
 
-    // Use setTimeout to allow UI update before potentially blocking generation
-    setTimeout(() => {
-      try {
-        // Adjust difficulty (e.g., 0.6 for ~60% filled cells)
-        const puzzle = generatePuzzle(n, 0.6);
-        setBoard(puzzle);
-        const fixed = puzzle.map((row) => row.map((cell) => cell !== 0));
-        setFixedCells(fixed);
-        console.log("Generated Sudoku Puzzle:", puzzle);
-      } catch (err) {
-        console.error(err);
-        setErrorGenerator("Error generating Sudoku puzzle.");
-        setBoard([]); // Ensure board is cleared on error
-        setFixedCells([]);
-      } finally {
-        setIsGenerating(false);
+  const handleManualModeChange = useCallback(
+    (isManual: boolean) => {
+      setIsManualMode(isManual);
+      if (isManual) {
+        const newBoard = initializeEmptyBoard(currentN);
+        setBoard(newBoard);
+        setFixedCells(newBoard.map((row) => row.map(() => false)));
       }
-    }, 0);
-  }, []); // No dependencies needed if generatePuzzle is pure
+    },
+    [currentN, initializeEmptyBoard]
+  );
+
+  const handleGenerate = useCallback(
+    (n: number) => {
+      setIsGenerating(true);
+      setErrorGenerator(null);
+      setErrorSolver(null);
+      setBoard([]);
+      setFixedCells([]);
+      setTime(null);
+      setCurrentN(n);
+
+      if (isManualMode) {
+        const newBoard = initializeEmptyBoard(n);
+        setBoard(newBoard);
+        setFixedCells(newBoard.map((row) => row.map(() => false)));
+        setIsGenerating(false);
+        return;
+      }
+
+      setTimeout(() => {
+        try {
+          const puzzle = generatePuzzle(n, 0.6);
+          setBoard(puzzle);
+          setFixedCells(puzzle.map((row) => row.map((cell) => cell !== 0)));
+        } catch (err) {
+          console.error(err);
+          setErrorGenerator("Error generating Sudoku puzzle.");
+          setBoard([]);
+          setFixedCells([]);
+        } finally {
+          setIsGenerating(false);
+        }
+      }, 0);
+    },
+    [isManualMode, initializeEmptyBoard]
+  );
 
   const handleCellChange = useCallback(
     (
@@ -72,14 +102,10 @@ const App: React.FC = () => {
       event: React.ChangeEvent<HTMLInputElement>
     ) => {
       const newValue = event.target.value;
-      // Allow empty string to clear cell (becomes 0)
       const value = newValue === "" ? 0 : parseInt(newValue, 10);
       const SIZE = currentN * currentN;
 
-      // Basic validation: ensure it's a number and within range 0-SIZE
-      if (isNaN(value) || value < 0 || value > SIZE) {
-        return; // Ignore invalid input
-      }
+      if (isNaN(value) || value < 0 || value > SIZE) return;
 
       setBoard((prevBoard) =>
         prevBoard.map((row, i) =>
@@ -90,97 +116,95 @@ const App: React.FC = () => {
       );
     },
     [currentN]
-  ); // Dependency on currentN for SIZE calculation
+  );
 
   const onSubmit = useCallback(async () => {
-    if (!board || board.length === 0) {
+    if (!board?.length) {
       setErrorSolver("No board available to solve.");
       return;
     }
 
-    // Set the current board state into the form for validation/submission
     form.setValue("board", board);
-    // Trigger validation manually if needed, or rely on handleSubmit
     const isValid = await form.trigger();
     if (!isValid) {
-      console.error("Form validation failed:", form.formState.errors);
       setErrorSolver("Board data is invalid.");
       return;
     }
 
-    console.log("Submitting board:", board);
     setIsSolving(true);
     setErrorSolver(null);
     setTime(null);
 
     try {
-      const response: AxiosResponse<FormResponse> = await axios.post(
-        "/api/solve", // Ensure this endpoint exists and is correct
-        { board: board } // Send the board data
-      );
-      const { solveBoard, time: solveTime } = response.data; // Rename time to avoid conflict
+      // const response: AxiosResponse<FormResponse> = await axios.post(
+      //   "/api/solve",
+      //   { board }
+      // );
+      // const { solveBoard, time: solveTime } = response.data;
+      // if (!solveBoard?.length) {
+      //   throw new Error("Solver returned an empty or invalid board.");
+      // }
+      // setBoard(solveBoard);
+      // setTime(solveTime);
+      // setFixedCells(solveBoard.map((row) => row.map(() => true)));
 
-      if (!solveBoard || solveBoard.length === 0) {
-        throw new Error("Solver returned an empty or invalid board.");
-      }
-
-      setBoard(solveBoard);
-      setTime(solveTime);
-      // Make all cells appear "fixed" after solving
-      setFixedCells(solveBoard.map((row) => row.map(() => true)));
-      console.log("Solved Sudoku Puzzle:", solveBoard);
-      console.log("Solve Time:", solveTime);
+      console.log("Solving board:", board);
     } catch (error) {
       console.error("Error solving puzzle:", error);
-      let message = "Failed to solve the puzzle.";
-      if (axios.isAxiosError(error)) {
-        // Provide more specific feedback if possible
-        message = error.response?.data?.message || error.message || message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message ||
+          error.message ||
+          "Failed to solve the puzzle."
+        : error instanceof Error
+        ? error.message
+        : "Failed to solve the puzzle.";
       setErrorSolver(message);
-      // Optionally revert fixedCells or leave them as they were before solve attempt
     } finally {
       setIsSolving(false);
     }
-  }, [board, form]); // Dependencies: board and form instance
+  }, [board, form]);
 
   return (
     <section className='min-h-lvh'>
       <div className='grid grid-cols-[minmax(250px,_1fr)_3fr] gap-4 p-4 w-full min-h-lvh'>
-        {/* Left Column: Controls */}
         <div>
           <SudokuGenerator
             onGenerate={handleGenerate}
             isGenerating={isGenerating}
             error={errorGenerator}
+            onManualModeChange={handleManualModeChange}
+            isManualMode={isManualMode}
+            onManualBoardChange={(board) => setBoard(board)} // Add this prop
           />
           <SudokuSolver
             time={time}
             form={form}
             onSubmit={onSubmit}
             isSolving={isSolving}
-            hasBoard={board && board.length > 0}
+            hasBoard={board?.length > 0}
             error={errorSolver}
           />
         </div>
 
-        {/* Right Column: Grid */}
-        {board && board.length > 0 ? (
-          <SudokuGrid
-            board={board}
-            fixedCells={fixedCells}
-            currentN={currentN}
-            onCellChange={handleCellChange}
-          />
-        ) : (
-          <div className='flex items-center justify-center h-full bg-gray-50 rounded-lg'>
-            <p className='text-gray-500 text-lg'>
-              Generate a puzzle to get started
-            </p>
-          </div>
-        )}
+        <div className='bg-white shadow-md rounded p-6 w-full ring-2 ring-neutral-200 h-[calc(100lvh-2rem)] grid place-items-center overflow-auto'>
+          {board?.length > 0 ? (
+            <div className='overflow-auto'>
+              <SudokuGrid
+                board={board}
+                fixedCells={fixedCells}
+                currentN={currentN}
+                onCellChange={handleCellChange}
+                isManualMode={isManualMode}
+              />
+            </div>
+          ) : (
+            <div className='flex items-center justify-center h-full rounded-lg'>
+              <p className='text-gray-500 text-lg'>
+                Generate a puzzle to get started
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
