@@ -136,17 +136,17 @@ const App: React.FC = () => {
     setTime(null);
 
     try {
-      // const response: AxiosResponse<FormResponse> = await axios.post(
-      //   "/api/solve",
-      //   { board }
-      // );
-      // const { solveBoard, time: solveTime } = response.data;
-      // if (!solveBoard?.length) {
-      //   throw new Error("Solver returned an empty or invalid board.");
-      // }
-      // setBoard(solveBoard);
-      // setTime(solveTime);
-      // setFixedCells(solveBoard.map((row) => row.map(() => true)));
+      const response: AxiosResponse<FormResponse> = await axios.post(
+        "/api/solve",
+        { board }
+      );
+      const { solveBoard, time: solveTime } = response.data;
+      if (!solveBoard?.length) {
+        throw new Error("Solver returned an empty or invalid board.");
+      }
+      setBoard(solveBoard);
+      setTime(solveTime);
+      setFixedCells(solveBoard.map((row) => row.map(() => true)));
 
       console.log("Solving board:", board);
     } catch (error) {
