@@ -4,6 +4,9 @@ import org.example.algorithms.Constraint_Propagation;
 import org.example.algorithms.optimizations.Constraint_Propagation_AC3;
 import org.example.algorithms.optimizations.Constraint_Propagation_Bitset;
 import org.example.algorithms.optimizations.Constraint_Propagation_Undostack;
+import org.example.algorithms.optimizations.Constraint_Propagation_InlineAndFinalize;
+import org.example.algorithms.optimizations.Constraint_Propagation_BitMask;
+import org.example.algorithms.optimizations.Constraint_Propagation_IterativeDeepening;
 import org.example.utils.BoardPrinter;
 
 import java.util.Arrays;
@@ -104,6 +107,15 @@ public class PerformanceBenchmark {
         
         System.out.println("AC3 optimization:");
         testConstraintPropagationAC3(size, copyPuzzle(puzzle));
+
+        System.out.println("BitMask optimization:");
+        testConstraintPropagationBitMask(size, copyPuzzle(puzzle));
+
+        System.out.println("Inline and Finalize optimization:");
+        testConstraintPropagationInlineAndFinalize(size, copyPuzzle(puzzle));
+
+        System.out.println("Iterative Deepening optimization:");
+        testConstraintPropagationIterativeDeepening(size, copyPuzzle(puzzle));
     }
     
     private static void testConstraintPropagation(int size, int[][] puzzle) {
@@ -188,6 +200,75 @@ public class PerformanceBenchmark {
             int[][] puzzleCopy = copyPuzzle(puzzle);
             
             Constraint_Propagation_AC3 solver = new Constraint_Propagation_AC3(size);
+            
+            long startTime = System.nanoTime();
+            boolean solved = solver.solve(puzzleCopy);
+            long endTime = System.nanoTime();
+            
+            times[i] = endTime - startTime;
+            
+            if (i == 0 && !solved) {
+                System.out.println("  Failed to solve the puzzle!");
+                return;
+            }
+        }
+        
+        printStatistics(times);
+    }
+    
+    private static void testConstraintPropagationBitMask(int size, int[][] puzzle) {
+        long[] times = new long[ITERATIONS];
+        
+        for (int i = 0; i < ITERATIONS; i++) {
+            int[][] puzzleCopy = copyPuzzle(puzzle);
+            
+            Constraint_Propagation_BitMask solver = new Constraint_Propagation_BitMask(size);
+            
+            long startTime = System.nanoTime();
+            boolean solved = solver.solve(puzzleCopy);
+            long endTime = System.nanoTime();
+            
+            times[i] = endTime - startTime;
+            
+            if (i == 0 && !solved) {
+                System.out.println("  Failed to solve the puzzle!");
+                return;
+            }
+        }
+        
+        printStatistics(times);
+    }
+    
+    private static void testConstraintPropagationInlineAndFinalize(int size, int[][] puzzle) {
+        long[] times = new long[ITERATIONS];
+        
+        for (int i = 0; i < ITERATIONS; i++) {
+            int[][] puzzleCopy = copyPuzzle(puzzle);
+            
+            Constraint_Propagation_InlineAndFinalize solver = new Constraint_Propagation_InlineAndFinalize(size);
+            
+            long startTime = System.nanoTime();
+            boolean solved = solver.solve(puzzleCopy);
+            long endTime = System.nanoTime();
+            
+            times[i] = endTime - startTime;
+            
+            if (i == 0 && !solved) {
+                System.out.println("  Failed to solve the puzzle!");
+                return;
+            }
+        }
+        
+        printStatistics(times);
+    }
+    
+    private static void testConstraintPropagationIterativeDeepening(int size, int[][] puzzle) {
+        long[] times = new long[ITERATIONS];
+        
+        for (int i = 0; i < ITERATIONS; i++) {
+            int[][] puzzleCopy = copyPuzzle(puzzle);
+            
+            Constraint_Propagation_IterativeDeepening solver = new Constraint_Propagation_IterativeDeepening(size);
             
             long startTime = System.nanoTime();
             boolean solved = solver.solve(puzzleCopy);
