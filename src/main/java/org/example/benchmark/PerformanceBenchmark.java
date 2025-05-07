@@ -11,6 +11,7 @@ import org.example.algorithms.optimizations.Constraint_Propagation_PrecomputedPe
 import org.example.algorithms.optimizations.Constraint_Propagation_MRV_Degree;
 import org.example.algorithms.optimizations.Constraint_Propagation_LCV;
 import org.example.utils.BoardPrinter;
+import org.example.services.ConstraintPropagationService;
 
 import java.util.Arrays;
 
@@ -70,6 +71,9 @@ public class PerformanceBenchmark {
 
         System.out.println("Least Constraining Value optimization:");
         testConstraintPropagationLCV(size, copyPuzzle(puzzle));
+
+        System.out.println("ConstraintPropagationService optimized solver:");
+        testConstraintPropagationService(size, copyPuzzle(puzzle));
     }
     
     private static void testConstraintPropagation(int size, int[][] puzzle) {
@@ -305,6 +309,23 @@ public class PerformanceBenchmark {
             }
         }
         
+        printStatistics(times);
+    }
+    
+    private static void testConstraintPropagationService(int size, int[][] puzzle) {
+        long[] times = new long[ITERATIONS];
+        for (int i = 0; i < ITERATIONS; i++) {
+            int[][] puzzleCopy = copyPuzzle(puzzle);
+            ConstraintPropagationService solver = new ConstraintPropagationService();
+            long startTime = System.nanoTime();
+            int[][] solved = solver.solve(puzzleCopy);
+            long endTime = System.nanoTime();
+            times[i] = endTime - startTime;
+            if (i == 0 && solved == null) {
+                System.out.println("  Failed to solve the puzzle!");
+                return;
+            }
+        }
         printStatistics(times);
     }
     
