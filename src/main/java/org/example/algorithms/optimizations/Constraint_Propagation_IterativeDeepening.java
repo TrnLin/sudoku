@@ -196,12 +196,10 @@ public class Constraint_Propagation_IterativeDeepening {
 
     private IntArrayList getPeers(int row, int col) {
         IntArrayList peers = new IntArrayList(3 * N);
-
         for (int i = 0; i < N; i++) {
             if (i != col) peers.add(new int[]{row, i});
             if (i != row) peers.add(new int[]{i, col});
         }
-
         int boxRow = (row / SUBGRID) * SUBGRID;
         int boxCol = (col / SUBGRID) * SUBGRID;
         for (int i = 0; i < SUBGRID; i++) {
@@ -212,38 +210,6 @@ public class Constraint_Propagation_IterativeDeepening {
                     peers.add(new int[]{r, c});
             }
         }
-
         return peers;
-    }
-
-    public static void main(String[] args) {
-        int[][] puzzle = {
-                {0, 0, 0, 0,  2, 0, 0, 0,  0, 0, 3, 0,  0, 0, 0, 0},
-                {0, 0, 0, 0,  0, 7, 0, 4,  0, 0, 0, 0,  0, 0, 0, 0},
-                {5, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 6, 0},
-                {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  7, 0, 0, 0},
-
-                {0, 0, 0, 0,  0, 0, 0, 0,  9, 0, 0, 0,  0, 0, 0, 0},
-                {0, 0, 0, 0,  0, 0, 0, 0,  0, 6, 0, 0,  0, 0, 0, 0},
-                {0, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
-                {0, 0, 0, 2,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
-
-                {0, 0, 0, 0,  0, 0, 0, 0,  8, 0, 0, 0,  0, 0, 0, 0},
-                {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 3,  0, 0, 0, 0},
-                {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 5, 0, 0},
-                {0, 0, 0, 9,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1},
-
-                {0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
-                {0, 3, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0},
-                {0, 0, 0, 0,  0, 0, 5, 0,  0, 0, 0, 0,  0, 0, 0, 0},
-                {0, 0, 0, 0,  0, 0, 0, 6,  0, 0, 0, 0,  0, 0, 0, 0}
-        };
-
-        Constraint_Propagation_IterativeDeepening solver = new Constraint_Propagation_IterativeDeepening(16);
-        if (solver.solve(puzzle)) {
-            BoardPrinter.printBoardFormatted(puzzle, "Solution:");
-        } else {
-            System.out.println("No solution found.");
-        }
     }
 }
