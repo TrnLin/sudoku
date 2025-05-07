@@ -123,42 +123,4 @@ public class BackTracking {
         }
         return false;
     }
-
-    //Main method
-    public static void main(String[] args) {
-        int[][] sampleBoard16x16 = {
-                {0, 0, 0, 3, 7, 4, 0, 0, 0, 0, 0, 0, 2, 0, 0, 10},
-                {6, 0, 15, 16, 12, 0, 0, 2, 0, 0, 1, 0, 0, 0, 4, 0},
-                {0, 5, 7, 0, 0, 0, 0, 0, 15, 16, 0, 0, 0, 0, 0, 0},
-                {10, 0, 0, 0, 13, 0, 0, 8, 3, 0, 0, 0, 0, 15, 0, 1},
-                {0, 12, 0, 0, 0, 7, 0, 0, 0, 8, 0, 3, 0, 2, 0, 14},
-                {0, 0, 0, 0, 0, 3, 0, 11, 0, 4, 0, 0, 5, 7, 9, 13},
-                {0, 0, 13, 0, 14, 0, 16, 5, 0, 15, 12, 0, 1, 0, 8, 0},
-                {15, 9, 6, 1, 0, 13, 10, 0, 5, 2, 0, 7, 0, 0, 0, 12},
-                {0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 7},
-                {13, 15, 0, 0, 5, 14, 1, 16, 11, 10, 0, 0, 3, 0, 12, 0},
-                {8, 3, 0, 0, 0, 6, 0, 12, 4, 0, 0, 0, 10, 0, 5, 16},
-                {0, 1, 14, 0, 10, 0, 7, 9, 0, 0, 0, 12, 0, 0, 2, 11},
-                {0, 0, 16, 15, 0, 11, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0},
-                {0, 10, 0, 0, 0, 0, 15, 0, 6, 0, 3, 0, 0, 0, 0, 0},
-                {1, 0, 11, 5, 0, 0, 2, 7, 0, 0, 15, 0, 14, 0, 0, 0},
-                {0, 0, 0, 13, 0, 0, 14, 0, 2, 0, 8, 0, 9, 0, 7, 0}
-        };
-
-        long startTime = System.nanoTime();
-
-        BackTracking solver = new BackTracking(sampleBoard16x16);
-
-        if (solver.solve()) {
-            long endTime = System.nanoTime();
-            long durationNs = (long) ((endTime - startTime) / 1000000.0); // Convert to milliseconds
-            // Convert to milliseconds
-            System.out.println("Sudoku solved in " + durationNs + " ms.");
-            long memoryUsageBytes = (long) sampleBoard16x16.length * sampleBoard16x16[0].length * Integer.BYTES;
-            System.out.println("Approximate memory usage: " + memoryUsageBytes + " bytes.");
-            BoardPrinter.printBoardFormatted(sampleBoard16x16, "16x16 Solution:");
-        } else {
-            System.out.println("No solution found.");
-        }
-    }
 }
