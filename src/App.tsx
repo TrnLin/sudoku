@@ -124,6 +124,15 @@ const App: React.FC = () => {
       return;
     }
 
+    // Check if the board is full of zeros.
+    const isEmptyBoard = board.every((row) => row.every((cell) => cell === 0));
+    if (isEmptyBoard) {
+      setErrorSolver(
+        "The board is empty. Please provide some numbers before solving."
+      );
+      return;
+    }
+
     form.setValue("board", board);
     const isValid = await form.trigger();
     if (!isValid) {
@@ -144,6 +153,17 @@ const App: React.FC = () => {
       if (!solveBoard?.length) {
         throw new Error("Solver returned an empty or invalid board.");
       }
+
+      // Check if the returned board is full of zeros.
+      const isEmptySolvedBoard = solveBoard.every((row) =>
+        row.every((cell) => cell === 0)
+      );
+      if (isEmptySolvedBoard) {
+        throw new Error(
+          "Solver returned a board full of zeros. The board cannot be solved."
+        );
+      }
+
       setBoard(solveBoard);
       setTime(solveTime);
       setFixedCells(solveBoard.map((row) => row.map(() => true)));
