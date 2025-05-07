@@ -14,8 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
-    private static final long TIMEOUT_MILLIS = 120000; // 2 minutes in milliseconds
-    private static final int DEFAULT_SIZE = 4; // Default size for an error response if we can't determine the input size
+    private static final long TIMEOUT_MILLIS = 120000;
+    private static final int DEFAULT_SIZE = 4;
     
     /**
      * Handle SudokuException specifically to extract the board size
@@ -24,17 +24,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<SudokuFormResponse> handleSudokuException(SudokuException ex) {
         logger.error("Sudoku exception caught: {}", ex.getMessage(), ex);
         
-        // Get the board size from the exception
         int size = ex.getBoardSize();
-        // If size is 0 or invalid, use the default size
         if (size <= 0) {
             size = DEFAULT_SIZE;
         }
         
-        // Create an empty board matching the input dimensions
         int[][] emptyBoard = new int[size][size];
         
-        // Return empty board with timeout time
         return new ResponseEntity<>(new SudokuFormResponse(emptyBoard, TIMEOUT_MILLIS), HttpStatus.OK);
     }
     
@@ -43,13 +39,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<SudokuFormResponse> handleAllExceptions(Exception ex) {
-        // Log the exception
         logger.error("Global exception handler caught: {}", ex.getMessage(), ex);
         
-        // Create a default empty board
         int[][] emptyBoard = new int[DEFAULT_SIZE][DEFAULT_SIZE];
         
-        // Return empty board with timeout time for any unexpected error
         return new ResponseEntity<>(new SudokuFormResponse(emptyBoard, TIMEOUT_MILLIS), HttpStatus.OK);
     }
 } 

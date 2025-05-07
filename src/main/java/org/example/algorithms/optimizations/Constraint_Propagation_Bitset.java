@@ -36,14 +36,12 @@ public class Constraint_Propagation_Bitset {
     }
 
     private void initializeDomains(int[][] board) {
-        // Start with all values allowed
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 domains[row][col] = FULL_MASK;
             }
         }
 
-        // Apply initial assignments
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 int val = board[row][col];
@@ -67,7 +65,6 @@ public class Constraint_Propagation_Bitset {
         int row = cell[0], col = cell[1];
         IntList values = new IntList(N);
 
-        // Collect allowed values in this domain
         for (int val = 1; val <= N; val++) {
             if ((domains[row][col] & bit(val)) != 0) {
                 values.add(val);
@@ -164,11 +161,9 @@ public class Constraint_Propagation_Bitset {
 
     private boolean isSafe(int[][] board, int row, int col, int val) {
         int bit = bit(val);
-        // Row & column
         for (int i = 0; i < N; i++) {
             if (board[row][i] == val || board[i][col] == val) return false;
         }
-        // Subgrid
         int boxRow = (row / SUBGRID) * SUBGRID;
         int boxCol = (col / SUBGRID) * SUBGRID;
         for (int i = 0; i < SUBGRID; i++) {

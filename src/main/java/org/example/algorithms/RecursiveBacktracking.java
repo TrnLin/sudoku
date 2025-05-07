@@ -17,25 +17,23 @@ public class RecursiveBacktracking {
                             if (solve(board)) {
                                 return true;
                             }
-                            board[row][col] = 0; // Backtrack
+                            board[row][col] = 0;
                         }
                     }
-                    return false; // No valid number found, backtrack
+                    return false;
                 }
             }
         }
-        return true; // Puzzle solved
+        return true;
     }
 
     private boolean isSafe(int row, int col, int num, int[][] board, int N, int SRN) {
-        // Check row and column
         for (int x = 0; x < N; x++) {
             if (board[row][x] == num || board[x][col] == num) {
                 return false;
             }
         }
 
-        // Check subgrid
         int startRow = row - row % SRN;
         int startCol = col - col % SRN;
 

@@ -33,7 +33,6 @@ public class Constraint_Propagation_AC3 {
     }
 
     private void initializeDomains(int[][] board) {
-        // start with all values permitted
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 domains[row][col].clear();
@@ -42,7 +41,7 @@ public class Constraint_Propagation_AC3 {
                 }
             }
         }
-        // eliminate based on the initial clues
+        
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 int val = board[row][col];
@@ -62,7 +61,6 @@ public class Constraint_Propagation_AC3 {
     private boolean forwardCheck(int[][] board) {
         int[] cell = selectUnassignedCell(board);
         if (cell == null) {
-            // no unassigned cells ⇒ solved
             return true;
         }
 
@@ -77,21 +75,17 @@ public class Constraint_Propagation_AC3 {
         for (int i = 0; i < values.size(); i++) {
             int value = values.get(i);
             if (isSafe(board, row, col, value)) {
-                // snapshot
                 int[][] boardCopy   = copyBoard(board);
                 IntSet[][] domCopy  = copyDomains();
 
-                // assign
                 board[row][col] = value;
                 domains[row][col].clear();
                 domains[row][col].add(value);
 
-                // enforce arc‐consistency globally
                 if (ac3() && forwardCheck(board)) {
                     return true;
                 }
 
-                // backtrack
                 restoreBoard(board, boardCopy);
                 domains = domCopy;
             }
@@ -105,9 +99,8 @@ public class Constraint_Propagation_AC3 {
      * AC-3 algorithm: enforce arc-consistency on all variable pairs (i,j).
      */
     private boolean ac3() {
-        // we'll store each arc as [xiRow, xiCol, xjRow, xjCol]
         IntArrayList queue = new IntArrayList(N * N * (3 * N));
-        // initialize with every peer‐arc
+        
         for (int r = 0; r < N; r++) {
             for (int c = 0; c < N; c++) {
                 IntArrayList peers = getPeers(r, c);
@@ -126,7 +119,7 @@ public class Constraint_Propagation_AC3 {
                 if (domains[xiR][xiC].isEmpty()) {
                     return false;
                 }
-                // add all arcs (xk → xi) for k ∈ peers(xi) \ {xj}
+                
                 IntArrayList backPeers = getPeers(xiR, xiC);
                 for (int m = 0; m < backPeers.size(); m++) {
                     int[] p2 = backPeers.get(m);
@@ -145,9 +138,8 @@ public class Constraint_Propagation_AC3 {
      */
     private boolean revise(int xiR, int xiC, int xjR, int xjC) {
         boolean revised = false;
-        // only singleton in xj can force a removal
+        
         if (domains[xjR][xjC].size() == 1) {
-            // fetch the sole value in xj
             int only = 0;
             for (int v = 1; v <= N; v++) {
                 if (domains[xjR][xjC].contains(v)) {
@@ -155,7 +147,7 @@ public class Constraint_Propagation_AC3 {
                     break;
                 }
             }
-            // remove it from xi if present
+            
             if (domains[xiR][xiC].contains(only)) {
                 domains[xiR][xiC].remove(only);
                 revised = true;

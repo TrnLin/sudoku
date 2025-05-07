@@ -4,71 +4,65 @@ import org.example.utils.BoardPrinter;
 
 public class DFS {
     /**
- * Solves the given Sudoku board using backtracking algorithm.
- *
- * @param board The Sudoku board to solve.
- * @return true if the board is solvable, false otherwise.
- */
+     * Solves the given Sudoku board using backtracking algorithm.
+     *
+     * @param board The Sudoku board to solve.
+     * @return true if the board is solvable, false otherwise.
+     */
     public boolean solveSudoku(int[][] board) {
-            long startTime = System.nanoTime();
-            boolean result = backtrack(board);
-            long endTime = System.nanoTime();
-            System.out.println("Running time: " + (endTime - startTime) / 1000000.0 + " ms");
-            return result;
-        }
+        long startTime = System.nanoTime();
+        boolean result = backtrack(board);
+        long endTime = System.nanoTime();
+        System.out.println("Running time: " + (endTime - startTime) / 1000000.0 + " ms");
+        return result;
+    }
 
     private boolean backtrack(int[][] board) {
-            // Iterate through each cell in the board
-            for (int i = 0; i < board.length; i++) {
-                for (int j = 0; j < board[0].length; j++) {
-                    // If the cell is empty
+        int N = board.length;
+        int SRN = (int) Math.sqrt(N);
+        
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
                 if (board[i][j] == 0) {
-                        // Try filling it with a number from 1 to 9
-                    for (int c = 1; c <= 9; c++) {
-                            // If the number is valid in this position
-                            if (isValid(board, i, j, c)) {
-                                board[i][j] = c;
-                                // Recursively try solving the rest of the board
-                                if (backtrack(board))
-                                    return true;
-                                // If the recursive call does not solve the board, backtrack and try a different number
+                    for (int c = 1; c <= N; c++) {
+                        if (isValid(board, i, j, c)) {
+                            board[i][j] = c;
+                            if (backtrack(board))
+                                return true;
                             board[i][j] = 0;
-                            }
                         }
-                        // If no valid number can be found in this position, return false
-                        return false;
                     }
+                    return false;
                 }
             }
-            // If all cells are filled, the board is solved
-            return true;
         }
+        return true;
+    }
 
     private boolean isValid(int[][] board, int row, int col, int c) {
-            // Check if the number is already in the current row
-            for (int i = 0; i < 9; i++) {
-                if (board[row][i] == c)
-                    return false;
-            }
-
-            // Check if the number is already in the current column
-            for (int i = 0; i < 9; i++) {
-                if (board[i][col] == c)
-                    return false;
-            }
-
-            // Check if the number is already in the current 3x3 subgrid
-            int startRow = row - row % 3;
-            int startCol = col - col % 3;
-            for (int i = startRow; i < startRow + 3; i++) {
-                for (int j = startCol; j < startCol + 3; j++) {
-                    if (board[i][j] == c)
-                        return false;
-                }
-            }
-
-            // If the number is not already in any of the above locations, it is valid
-            return true;
+        int N = board.length;
+        int SRN = (int) Math.sqrt(N);
+        
+        for (int i = 0; i < N; i++) {
+            if (board[row][i] == c)
+                return false;
         }
+
+        for (int i = 0; i < N; i++) {
+            if (board[i][col] == c)
+                return false;
+        }
+
+        int startRow = row - row % SRN;
+        int startCol = col - col % SRN;
+        for (int i = startRow; i < startRow + SRN; i++) {
+            for (int j = startCol; j < startCol + SRN; j++) {
+                if (board[i][j] == c)
+                    return false;
+            }
+        }
+
+        return true;
+    }
 }
 

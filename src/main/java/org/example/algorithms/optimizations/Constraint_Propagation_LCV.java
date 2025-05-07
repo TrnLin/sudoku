@@ -67,7 +67,6 @@ public class Constraint_Propagation_LCV {
             }
         }
 
-        // Order values by Least Constraining Value
         int m = values.size();
         int[] eliminateCount = new int[m];
         for (int i = 0; i < m; i++) {
@@ -83,7 +82,7 @@ public class Constraint_Propagation_LCV {
             }
             eliminateCount[i] = count;
         }
-        // Simple selection sort of values by eliminateCount ascending
+        
         for (int i = 0; i < m - 1; i++) {
             int minIdx = i;
             for (int j = i + 1; j < m; j++) {
@@ -92,11 +91,10 @@ public class Constraint_Propagation_LCV {
                 }
             }
             if (minIdx != i) {
-                // swap values
                 int tmpVal = values.elements[i];
                 values.elements[i] = values.elements[minIdx];
                 values.elements[minIdx] = tmpVal;
-                // swap counts
+                
                 int tmpCnt = eliminateCount[i];
                 eliminateCount[i] = eliminateCount[minIdx];
                 eliminateCount[minIdx] = tmpCnt;

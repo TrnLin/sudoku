@@ -2,9 +2,7 @@ package org.example.algorithms;
 
 import org.example.utils.BoardPrinter;
 
-//Implemented by Linh 
 public class BackTracking {
-    //Declare the variables
     private final int n;
     private final int blockSize;
     private final int[][] board;
@@ -12,7 +10,6 @@ public class BackTracking {
     private final int[] columns;
     private final int[] blocks;
 
-    // Constructor to initialize the board and bit masks
     public BackTracking(int[][] board) {
         this.board = board;
         this.n = board.length;
@@ -30,7 +27,6 @@ public class BackTracking {
         initialize();
     }
 
-    // Initializes the bit masks for rows, columns, and blocks
     private void initialize() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -45,38 +41,32 @@ public class BackTracking {
         }
     }
 
-    // Returns the block index for a given cell
     private int getBlockIndex(int row, int col) {
         return (row / blockSize) * blockSize + (col / blockSize);
     }
 
-    // Returns the block index for a given cell
     public boolean solve() {
         return solveSudoku();
     }
 
-   // Solves the Sudoku puzzle using backtracking
     private boolean solveSudoku() {
         int minOptions = Integer.MAX_VALUE;
         int targetRow = -1;
         int targetCol = -1;
 
-        // Find the empty cell with the minimum number of candidate digits.
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (board[i][j] == 0) {
                     int blockIndex = getBlockIndex(i, j);
-                    // Compute available candidates.
                     int available = ((1 << n) - 1) & ~(rows[i] | columns[j] | blocks[blockIndex]);
                     int count = Integer.bitCount(available);
                     if (count == 0) {
-                        return false; // Dead end: no possible digit here.
+                        return false;
                     }
                     if (count < minOptions) {
                         minOptions = count;
                         targetRow = i;
                         targetCol = j;
-                        // Early break if only one candidate is possible.
                         if (minOptions == 1) {
                             break;
                         }
@@ -88,34 +78,28 @@ public class BackTracking {
             }
         }
 
-        // No empty cell left, puzzle solved!
         if (targetRow == -1) {
             return true;
         }
 
-        // No candidates available for this cell.
         int blockIndex = getBlockIndex(targetRow, targetCol);
         int available = ((1 << n) - 1) & ~(rows[targetRow]
                 | columns[targetCol] | blocks[blockIndex]);
 
-        // Try each candidate digit.
         for (int candidateMask = available; candidateMask != 0;
              candidateMask &= candidateMask - 1) {
-            int bit = candidateMask & -candidateMask; // lowest set bit
-            int candidate = Integer.numberOfTrailingZeros(bit) + 1; // candidate digit
+            int bit = candidateMask & -candidateMask;
+            int candidate = Integer.numberOfTrailingZeros(bit) + 1;
 
-            // Place candidate.
             board[targetRow][targetCol] = candidate;
             rows[targetRow] |= bit;
             columns[targetCol] |= bit;
             blocks[blockIndex] |= bit;
 
-            // Proceed recursively.
             if (solveSudoku()) {
                 return true;
             }
 
-            // Backtrack.
             board[targetRow][targetCol] = 0;
             rows[targetRow] &= ~bit;
             columns[targetCol] &= ~bit;

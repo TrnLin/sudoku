@@ -147,21 +147,18 @@ public class Constraint_Propagation_BitMask {
     }
 
     private boolean isSafe(int row, int col, int val) {
-        // Stop scanning rows/cols in `isSafe` by keeping row/col/box masks
         return (rowMask[row] & (1 << (val - 1))) == 0 &&
                (colMask[col] & (1 << (val - 1))) == 0 &&
                (boxMask[row / SUBGRID * SUBGRID + col / SUBGRID] & (1 << (val - 1))) == 0;
     }
 
     private void setMask(int row, int col, int val) {
-        // Maintain three short `[] rowmask, colmask, boxmask` that track used values
         rowMask[row] |= (1 << (val - 1));
         colMask[col] |= (1 << (val - 1));
         boxMask[row / SUBGRID * SUBGRID + col / SUBGRID] |= (1 << (val - 1));
     }
 
     private void unsetMask(int row, int col, int val) {
-        // Assignment/un-assignment is just "mask"
         rowMask[row] &= ~(1 << (val - 1));
         colMask[col] &= ~(1 << (val - 1));
         boxMask[row / SUBGRID * SUBGRID + col / SUBGRID] &= ~(1 << (val - 1));

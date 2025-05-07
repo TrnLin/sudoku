@@ -29,10 +29,8 @@ public final class ConstraintPropagationService {
             throw new SudokuException("Puzzle cannot be null or empty", 0);
         }
         
-        // Determine dimensions
         int n = puzzle.length;
         
-        // Verify it's a valid Sudoku (NxN with perfect square)
         double sqrtN = Math.sqrt(n);
         if (sqrtN != Math.floor(sqrtN)) {
             throw new SudokuException("Board size must be a perfect square (e.g., 4x4, 9x9, 16x16). Got: " + n + "x" + n, n);
@@ -40,14 +38,12 @@ public final class ConstraintPropagationService {
         
         int subgrid = (int) sqrtN;
         
-        // Verify it's a square grid
         for (int i = 0; i < n; i++) {
             if (puzzle[i] == null || puzzle[i].length != n) {
                 throw new SudokuException("Puzzle must be a square grid: " + n + "x" + n, n);
             }
         }
         
-        // Check if n is too large for int bitmask (int can handle up to 31 bits safely)
         if (n > 30) {
             throw new SudokuException("Sudoku size too large. Maximum supported size is 30x30", n);
         }
@@ -55,7 +51,6 @@ public final class ConstraintPropagationService {
         int fullMask = (1 << n) - 1;
         int[][] peers = buildPeers(n, subgrid);
 
-        // Flatten board to 1D
         int[] board = new int[n * n];
         for (int r = 0, idx = 0; r < n; r++) {
             for (int c = 0; c < n; c++, idx++) {
@@ -63,13 +58,11 @@ public final class ConstraintPropagationService {
             }
         }
         
-        // Initialize domains
         int[] domains = new int[n * n];
         for (int i = 0; i < n * n; i++) {
             domains[i] = fullMask;
         }
         
-        // Assign initial values and propagate constraints
         for (int i = 0; i < n * n; i++) {
             int v = board[i];
             if (v != 0) {
@@ -79,11 +72,10 @@ public final class ConstraintPropagationService {
                 }
                 
                 if ((domains[i] & bit(v, n)) == 0) {
-                    // Value already eliminated
                     throw new SudokuException("Invalid puzzle: inconsistent value at row=" + (i/n) + ", col=" + (i%n), n);
                 }
                 domains[i] = bit(v, n);
-                // Eliminate this value from peers
+                
                 int b = bit(v, n);
                 for (int peer : peers[i]) {
                     domains[peer] &= ~b;
@@ -94,12 +86,10 @@ public final class ConstraintPropagationService {
             }
         }
         
-        // Search and solve
         if (!search(board, domains, n, peers)) {
             throw new SudokuException("No solution found", n);
         }
         
-        // Unflatten to 2D result
         int[][] result = new int[n][n];
         for (int i = 0; i < n * n; i++) {
             result[i / n][i % n] = board[i];
@@ -107,23 +97,22 @@ public final class ConstraintPropagationService {
         return result;
     }
 
-    // Recursive backtracking with MRV+Degree and LCV
     private static boolean search(int[] board, int[] domains, int n, int[][] peers) {
         int idx = selectUnassignedCell(board, domains, peers);
         if (idx == -1) {
-            return true; // solved
+            return true;
         }
         int mask = domains[idx];
         int valueCount = Integer.bitCount(mask);
         int[] values = new int[valueCount];
-        // Collect possible values
+        
         for (int v = 1, pos = 0; v <= n; v++) {
             int b = bit(v, n);
             if ((mask & b) != 0) {
                 values[pos++] = v;
             }
         }
-        // Compute elimination counts for LCV
+        
         int[] elim = new int[valueCount];
         for (int i = 0; i < valueCount; i++) {
             int b = bit(values[i], n);
@@ -135,7 +124,7 @@ public final class ConstraintPropagationService {
             }
             elim[i] = count;
         }
-        // Sort values by increasing elimination (LCV)
+        
         for (int i = 0; i < valueCount - 1; i++) {
             int min = i;
             for (int j = i + 1; j < valueCount; j++) {
@@ -152,7 +141,7 @@ public final class ConstraintPropagationService {
                 elim[min] = tmpE;
             }
         }
-        // Backup domains state
+        
         int[] domainsBackup = domains.clone();
         for (int v : values) {
             board[idx] = v;
@@ -160,14 +149,13 @@ public final class ConstraintPropagationService {
             if (propagate(board, domains, n, peers) && search(board, domains, n, peers)) {
                 return true;
             }
-            // Restore for next iteration
+            
             board[idx] = 0;
             System.arraycopy(domainsBackup, 0, domains, 0, domains.length);
         }
         return false;
     }
 
-    // Forward-checking propagation to fixpoint
     private static boolean propagate(int[] board, int[] domains, int n, int[][] peers) {
         boolean changed;
         do {
@@ -191,7 +179,6 @@ public final class ConstraintPropagationService {
         return true;
     }
 
-    // MRV with Degree heuristic
     private static int selectUnassignedCell(int[] board, int[] domains, int[][] peers) {
         int minSize = Integer.MAX_VALUE;
         int bestIdx = -1;
@@ -232,20 +219,16 @@ public final class ConstraintPropagationService {
         return 1 << (v - 1);
     }
 
-    // Build peers for each cell dynamically based on grid size
     private static int[][] buildPeers(int n, int subgrid) {
         int[][] peers = new int[n * n][];
         for (int idx = 0; idx < n * n; idx++) {
             int row = idx / n;
             int col = idx % n;
             
-            // Use IntList for dynamic collection
-            IntList peerList = new IntList(n * 3); // Approximate max possible peers
+            IntList peerList = new IntList(n * 3);
             
-            // Track which cells we've already added (to avoid duplicates)
             boolean[] seen = new boolean[n * n];
             
-            // Row peers
             for (int c = 0; c < n; c++) {
                 if (c != col) {
                     int peerIdx = row * n + c;
@@ -254,7 +237,6 @@ public final class ConstraintPropagationService {
                 }
             }
             
-            // Column peers
             for (int r = 0; r < n; r++) {
                 if (r != row) {
                     int peerIdx = r * n + col;
@@ -265,7 +247,6 @@ public final class ConstraintPropagationService {
                 }
             }
             
-            // Block peers
             int boxRow = (row / subgrid) * subgrid;
             int boxCol = (col / subgrid) * subgrid;
             for (int r = boxRow; r < boxRow + subgrid; r++) {
@@ -278,7 +259,6 @@ public final class ConstraintPropagationService {
                 }
             }
             
-            // Convert dynamic list to fixed array
             peers[idx] = new int[peerList.size];
             for (int i = 0; i < peerList.size; i++) {
                 peers[idx][i] = peerList.elements[i];

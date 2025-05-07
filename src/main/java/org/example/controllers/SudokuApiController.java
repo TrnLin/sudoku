@@ -25,7 +25,7 @@ public class SudokuApiController {
 
     private final ConstraintPropagationService solverService;
     private final ExecutorService executor = Executors.newCachedThreadPool();
-    private static final long TIMEOUT_MILLIS = 120000; // 2 minutes in milliseconds
+    private static final long TIMEOUT_MILLIS = 120000;
 
     @Autowired
     public SudokuApiController(ConstraintPropagationService solverService) {
@@ -36,21 +36,17 @@ public class SudokuApiController {
     public SudokuFormResponse solveSudoku(@RequestBody int[][] board) {
         logger.info("Received Sudoku solve request");
         
-        // Validate and get size before attempting to solve
         int size = validateBoardSize(board);
         
-        // Create empty response with same dimensions as input board
         int[][] emptyBoard = new int[size][size];
         
         long startTime = System.currentTimeMillis();
         Future<int[][]> future = null;
         
         try {
-            // Complete validation
             validateSudokuBoard(board);
             logger.info("Board validation passed");
             
-            // Submit solving task to executor with timeout
             logger.info("Starting Sudoku solver with 2-minute timeout");
             future = executor.submit(new Callable<int[][]>() {
                 @Override
@@ -59,7 +55,6 @@ public class SudokuApiController {
                 }
             });
             
-            // Get result with 2-minute timeout
             int[][] solvedBoard = future.get(2, TimeUnit.MINUTES);
             long executionTime = System.currentTimeMillis() - startTime;
             
@@ -67,20 +62,16 @@ public class SudokuApiController {
             return new SudokuFormResponse(solvedBoard, executionTime);
             
         } catch (TimeoutException e) {
-            // Cancel the task to prevent it from continuing to run
             if (future != null) {
                 future.cancel(true);
             }
             logger.warn("Solver timed out after 2 minutes");
-            // For timeout case, return exactly 2 minutes (as requested) with properly sized board
             return new SudokuFormResponse(emptyBoard, TIMEOUT_MILLIS);
         } catch (Exception e) {
-            // Cancel the task if it's still running
             if (future != null) {
                 future.cancel(true);
             }
             logger.error("Error solving Sudoku: {}", e.getMessage());
-            // For other errors, return the actual elapsed time with properly sized board
             long executionTime = System.currentTimeMillis() - startTime;
             return new SudokuFormResponse(emptyBoard, executionTime);
         }
@@ -94,22 +85,18 @@ public class SudokuApiController {
      * @throws SudokuException if the board is invalid
      */
     private int validateBoardSize(int[][] board) {
-        // Check if board exists
         if (board == null || board.length == 0) {
             throw new SudokuException("Board cannot be null or empty", 0);
         }
         
-        // Get board size
         int size = board.length;
         
-        // Verify it's a valid Sudoku (NxN with perfect square)
         double sqrtSize = Math.sqrt(size);
         if (sqrtSize != Math.floor(sqrtSize)) {
             throw new SudokuException(
                 "Board size must be a perfect square (e.g., 4x4, 9x9, 16x16). Got: " + size + "x" + size, size);
         }
         
-        // Verify it's a square grid
         for (int i = 0; i < size; i++) {
             if (board[i] == null || board[i].length != size) {
                 throw new SudokuException("Board must be a square grid: " + size + "x" + size, size);
@@ -130,8 +117,7 @@ public class SudokuApiController {
         int size = board.length;
         int subgrid = (int) Math.sqrt(size);
         
-        // Check value range and rule compliance
-        boolean[][] rowSeen = new boolean[size][size+1]; // +1 because valid values are 1-size
+        boolean[][] rowSeen = new boolean[size][size+1];
         boolean[][] colSeen = new boolean[size][size+1];
         boolean[][] boxSeen = new boolean[size][size+1];
         
@@ -139,28 +125,23 @@ public class SudokuApiController {
             for (int col = 0; col < size; col++) {
                 int value = board[row][col];
                 
-                // Check value range
                 if (value < 0 || value > size) {
                     throw new SudokuException("Invalid value " + value + 
                         " at position [" + row + "," + col + "]. Values must be 0-" + size, size);
                 }
                 
-                // Skip checking empty cells (value 0)
                 if (value == 0) continue;
                 
-                // Check row uniqueness
                 if (rowSeen[row][value]) {
                     throw new SudokuException("Duplicate value " + value + " in row " + row, size);
                 }
                 rowSeen[row][value] = true;
                 
-                // Check column uniqueness
                 if (colSeen[col][value]) {
                     throw new SudokuException("Duplicate value " + value + " in column " + col, size);
                 }
                 colSeen[col][value] = true;
                 
-                // Check box uniqueness
                 int boxIdx = (row / subgrid) * subgrid + (col / subgrid);
                 if (boxSeen[boxIdx][value]) {
                     throw new SudokuException("Duplicate value " + value + 

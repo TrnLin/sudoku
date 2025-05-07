@@ -9,7 +9,7 @@ public class Constraint_Propagation_IterativeDeepening {
     private final int N;
     private final int SUBGRID;
     private IntSet[][] domains;
-    private int conflictLimit = 100; // Initialize conflict limit
+    private int conflictLimit = 100;
 
     public Constraint_Propagation_IterativeDeepening(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
@@ -30,7 +30,6 @@ public class Constraint_Propagation_IterativeDeepening {
 
     public boolean solve(int[][] board) {
         initializeDomains(board);
-        // Use iterative deepening with a conflict limit
         for (int conflicts = 0; conflicts < Integer.MAX_VALUE; conflicts += conflictLimit) {
             if (forwardCheck(board, conflicts)) return true;
         }
@@ -40,20 +39,18 @@ public class Constraint_Propagation_IterativeDeepening {
     private void initializeDomains(int[][] board) {
             for (int row = 0; row < N; row++) {
                 for (int col = 0; col < N; col++) {
-                // Initialize all values as possible
                 for (int val = 1; val <= N; val++) {
                     domains[row][col].add(val);
                 }
             }
         }
-        // Remove assigned values and propagate constraints
+        
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 int val = board[row][col];
                 if (val != 0) {
                     domains[row][col].clear();
                     domains[row][col].add(val);
-                    // Update all peers
                     for (int[] peer : getPeers(row, col).elements) {
                         if (peer != null) {
                             domains[peer[0]][peer[1]].remove(val);
@@ -66,14 +63,12 @@ public class Constraint_Propagation_IterativeDeepening {
 
     private boolean forwardCheck(int[][] board, int conflictThreshold) {
         int[] cell = selectUnassignedCell(board);
-        // If no unassigned cells left, puzzle solved
         if (cell == null) return true;
 
         int row = cell[0], col = cell[1];
         IntList values = new IntList(N);
         int conflicts = 0;
         for (int val = 1; val <= N; val++) {
-            // Only consider valid values in domain
             if (domains[row][col].contains(val)) {
                 values.add(val);
     }
@@ -81,7 +76,6 @@ public class Constraint_Propagation_IterativeDeepening {
 
         for (int i = 0; i < values.size(); i++) {
             int value = values.get(i);
-            // Check if value is safe to assign
             if (isSafe(board, row, col, value)) {
                 int[][] boardCopy = copyBoard(board);
                 IntSet[][] domainCopy = copyDomains();
@@ -90,12 +84,10 @@ public class Constraint_Propagation_IterativeDeepening {
                 domains[row][col].clear();
                 domains[row][col].add(value);
 
-                // Propagate constraints and recursively check
                 if (propagateConstraints(board) && forwardCheck(board, conflictThreshold))
         return true;
 
                 conflicts++;
-                // If too many conflicts, rollback
                 if (conflicts >= conflictThreshold) {
                     restoreBoard(board, boardCopy);
                     domains = domainCopy;
@@ -107,7 +99,6 @@ public class Constraint_Propagation_IterativeDeepening {
             }
         }
 
-        // Clear the cell and try next value
         board[row][col] = 0;
         return false;
     }
@@ -145,7 +136,6 @@ public class Constraint_Propagation_IterativeDeepening {
             for (int col = 0; col < N; col++) {
                 if (board[row][col] == 0) {
                     int size = domains[row][col].size();
-                    // Select cell with smallest domain
                     if (size < minSize) {
                         minSize = size;
                         selected = new int[]{row, col};

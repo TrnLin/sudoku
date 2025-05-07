@@ -34,14 +34,12 @@ public class Constraint_Propagation_Undostack {
     }
 
     public boolean solve(int[][] board) {
-        // initialize undo trail
         trail = new ArrayDeque<>();
         initializeDomains(board);
         return forwardCheck(board);
     }
 
     private void initializeDomains(int[][] board) {
-        // start with all values in each domain
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 for (int val = 1; val <= N; val++) {
@@ -49,7 +47,7 @@ public class Constraint_Propagation_Undostack {
                 }
             }
         }
-        // apply the given clues
+        
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
                 int val = board[row][col];
@@ -69,11 +67,10 @@ public class Constraint_Propagation_Undostack {
     private boolean forwardCheck(int[][] board) {
         int[] cell = selectUnassignedCell(board);
         if (cell == null) {
-            return true;  // all assigned
+            return true;
         }
         int row = cell[0], col = cell[1];
 
-        // gather allowed values
         IntList values = new IntList(N);
         for (int v = 1; v <= N; v++) {
             if (domains[row][col].contains(v)) {
@@ -85,28 +82,22 @@ public class Constraint_Propagation_Undostack {
             int value = values.get(i);
             if (!isSafe(board, row, col, value)) continue;
 
-            // mark a checkpoint on the trail
             int checkpoint = trail.size();
 
-            // record & assign the board cell
             trail.push(new BoardChange(board, row, col, board[row][col]));
             board[row][col] = value;
 
-            // record & restrict the domain of that cell
             trail.push(new DomainChange(row, col, new IntSet(domains[row][col])));
             domains[row][col].clear();
             domains[row][col].add(value);
 
-            // propagate and recurse
             if (propagateConstraints(board) && forwardCheck(board)) {
                 return true;
             }
 
-            // backtrack to checkpoint
             undoTo(checkpoint);
         }
 
-        // if none worked, this cell remains empty for outer backtracking
         return false;
     }
 
@@ -123,7 +114,6 @@ public class Constraint_Propagation_Undostack {
                             int[] p = peers.get(i);
                             int r = p[0], c = p[1];
                             if (domains[r][c].contains(val)) {
-                                // record & remove
                                 trail.push(new DomainChange(r, c, new IntSet(domains[r][c])));
                                 domains[r][c].remove(val);
                                 changed = true;

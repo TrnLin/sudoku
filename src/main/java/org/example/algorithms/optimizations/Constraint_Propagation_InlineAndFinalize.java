@@ -64,7 +64,6 @@ public class Constraint_Propagation_InlineAndFinalize {
         int row = cell[0], col = cell[1];
         IntList values = new IntList(N);
 
-        // Convert domain to IntList for iteration
         for (int val = 1; val <= N; val++) {
             if (domains[row][col].contains(val)) {
                 values.add(val);
@@ -74,7 +73,6 @@ public class Constraint_Propagation_InlineAndFinalize {
         for (int i = 0; i < values.size(); i++) {
             int value = values.get(i);
 
-            // Inline isSafe
             boolean safe = true;
             for (int k = 0; k < N; k++) {
                 if (board[row][k] == value || board[k][col] == value) {
@@ -179,10 +177,8 @@ public class Constraint_Propagation_InlineAndFinalize {
         return copy;
     }
 
-    // isSafe inlined above
-
     private final IntArrayList getPeers(int row, int col) {
-        IntArrayList peers = new IntArrayList(3 * N); // Approximate size needed
+        IntArrayList peers = new IntArrayList(3 * N);
 
         for (int i = 0; i < N; i++) {
             if (i != col) peers.add(new int[]{row, i});
