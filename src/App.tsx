@@ -151,6 +151,11 @@ const App: React.FC = () => {
         { board }
       );
       const { solveBoard, time: solveTime } = response.data;
+
+      //transform NanoSecond - MilliSecond
+
+      const timeInMilliseconds: number = Math.round(solveTime / 1_000_000);
+
       if (!solveBoard?.length) {
         throw new Error("Solver returned an empty or invalid board.");
       }
@@ -166,7 +171,7 @@ const App: React.FC = () => {
       }
 
       setBoard(solveBoard);
-      setTime(solveTime);
+      setTime(timeInMilliseconds);
       setFixedCells(solveBoard.map((row) => row.map(() => true)));
 
       console.log("Solving board:", board);
