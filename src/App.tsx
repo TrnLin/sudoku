@@ -154,7 +154,9 @@ const App: React.FC = () => {
 
       //transform NanoSecond - MilliSecond
 
-      const timeInMilliseconds: number = Math.round(solveTime / 1_000_000);
+      const timeInMilliseconds: number = parseFloat(
+        (solveTime / 1_000_000).toFixed(3)
+      );
 
       if (!solveBoard?.length) {
         throw new Error("Solver returned an empty or invalid board.");
