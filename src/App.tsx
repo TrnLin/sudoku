@@ -143,6 +143,7 @@ const App: React.FC = () => {
     setIsSolving(true);
     setErrorSolver(null);
     setTime(null);
+    console.log("Submitting board:", board);
 
     try {
       const response: AxiosResponse<FormResponse> = await axios.post(
