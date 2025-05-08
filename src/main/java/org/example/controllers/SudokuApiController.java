@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import org.example.models.SudokuBoardRequest;
 import org.example.models.SudokuException;
 import org.example.models.SudokuFormResponse;
 import org.example.services.ConstraintPropagationService;
@@ -25,7 +26,7 @@ public class SudokuApiController {
 
     private final ConstraintPropagationService solverService;
     private final ExecutorService executor = Executors.newCachedThreadPool();
-    private static final long TIMEOUT_MILLIS = 120000;
+    private static final long TIMEOUT_NANOS = 120_000_000_000L; // 120 seconds in nanoseconds
 
     @Autowired
     public SudokuApiController(ConstraintPropagationService solverService) {
@@ -33,14 +34,17 @@ public class SudokuApiController {
     }
 
     @PostMapping("/solve")
-    public SudokuFormResponse solveSudoku(@RequestBody int[][] board) {
+    public SudokuFormResponse solveSudoku(@RequestBody SudokuBoardRequest boardRequest) {
         logger.info("Received Sudoku solve request");
+        
+        // Extract the board from the request
+        int[][] board = boardRequest.getBoard();
         
         int size = validateBoardSize(board);
         
         int[][] emptyBoard = new int[size][size];
         
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         Future<int[][]> future = null;
         
         try {
@@ -56,9 +60,9 @@ public class SudokuApiController {
             });
             
             int[][] solvedBoard = future.get(2, TimeUnit.MINUTES);
-            long executionTime = System.currentTimeMillis() - startTime;
+            long executionTime = System.nanoTime() - startTime;
             
-            logger.info("Sudoku solved successfully in {} ms", executionTime);
+            logger.info("Sudoku solved successfully in {} ns", executionTime);
             return new SudokuFormResponse(solvedBoard, executionTime);
             
         } catch (TimeoutException e) {
@@ -66,13 +70,13 @@ public class SudokuApiController {
                 future.cancel(true);
             }
             logger.warn("Solver timed out after 2 minutes");
-            return new SudokuFormResponse(emptyBoard, TIMEOUT_MILLIS);
+            return new SudokuFormResponse(emptyBoard, TIMEOUT_NANOS);
         } catch (Exception e) {
             if (future != null) {
                 future.cancel(true);
             }
             logger.error("Error solving Sudoku: {}", e.getMessage());
-            long executionTime = System.currentTimeMillis() - startTime;
+            long executionTime = System.nanoTime() - startTime;
             return new SudokuFormResponse(emptyBoard, executionTime);
         }
     }
