@@ -6,7 +6,7 @@ import SudokuGrid from "./components/sudoku/SudokuBoard";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 interface FormResponse {
   solveBoard: number[][];
@@ -119,20 +119,19 @@ const App: React.FC = () => {
   );
 
   const onSubmit = useCallback(async () => {
+    // Validate board existence and content
     if (!board?.length) {
       setErrorSolver("No board available to solve.");
       return;
     }
 
-    // Check if the board is full of zeros.
-    const isEmptyBoard = board.every((row) => row.every((cell) => cell === 0));
+    const isEmptyBoard = board.every(row => row.every(cell => cell === 0));
     if (isEmptyBoard) {
-      setErrorSolver(
-        "The board is empty. Please provide some numbers before solving."
-      );
+      setErrorSolver("The board is empty. Please provide some numbers before solving.");
       return;
     }
 
+    // Validate with form schema
     form.setValue("board", board);
     const isValid = await form.trigger();
     if (!isValid) {
@@ -140,52 +139,43 @@ const App: React.FC = () => {
       return;
     }
 
+    // Reset states before solving
     setIsSolving(true);
     setErrorSolver(null);
     setTime(null);
-    console.log("Submitting board:", board);
 
     try {
-      const response: AxiosResponse<FormResponse> = await axios.post(
-        "/api/solve",
-        { board }
-      );
+      const response = await axios.post<FormResponse>("/api/solve", { board });
       const { solveBoard, time: solveTime } = response.data;
 
-      //transform NanoSecond - MilliSecond
+      // Convert nanoseconds to milliseconds with fixed precision
+      const timeInMilliseconds = parseFloat((solveTime / 1_000_000).toFixed(3));
 
-      const timeInMilliseconds: number = parseFloat(
-        (solveTime / 1_000_000).toFixed(3)
-      );
-
-      if (!solveBoard?.length) {
-        throw new Error("Solver returned an empty or invalid board.");
+      // Validate solver response
+      if (!solveBoard?.length || solveBoard.every(row => row.every(cell => cell === 0))) {
+        throw new Error("Solver returned an empty or invalid solution.");
       }
 
-      // Check if the returned board is full of zeros.
-      const isEmptySolvedBoard = solveBoard.every((row) =>
-        row.every((cell) => cell === 0)
-      );
-      if (isEmptySolvedBoard) {
-        throw new Error(
-          "Solver returned a board full of zeros. The board cannot be solved."
-        );
+      // Check if solving took too long
+      if (solveTime >= 120_000_000_000) {
+        setErrorSolver("The puzzle took too long to solve. Please try a smaller puzzle.");
+        return;
       }
 
+      // Update UI with solution
       setBoard(solveBoard);
       setTime(timeInMilliseconds);
-      setFixedCells(solveBoard.map((row) => row.map(() => true)));
-
-      console.log("Solving board:", board);
+      setFixedCells(solveBoard.map(row => row.map(() => true)));
     } catch (error) {
       console.error("Error solving puzzle:", error);
+
+      // Enhanced error handling
       const message = axios.isAxiosError(error)
-        ? error.response?.data?.message ||
-          error.message ||
-          "Failed to solve the puzzle."
+        ? error.response?.data?.message || error.message || "Failed to solve the puzzle."
         : error instanceof Error
-        ? error.message
-        : "Failed to solve the puzzle.";
+          ? error.message
+          : "Failed to solve the puzzle.";
+
       setErrorSolver(message);
     } finally {
       setIsSolving(false);
