@@ -5,11 +5,19 @@ import org.example.models.IntList;
 import org.example.models.IntArrayList;
 import org.example.utils.BoardPrinter;
 
+/**
+ * Implements the AC-3 constraint propagation algorithm for solving Sudoku puzzles.
+ * Maintains domains of possible values for each cell and enforces arc-consistency.
+ */
 public class Constraint_Propagation_AC3 {
     private final int N;
     private final int SUBGRID;
     private IntSet[][] domains;
 
+    /**
+     * Constructs a new AC-3 solver for an N x N Sudoku board.
+     * @param N the size of the board; must be a perfect square.
+     */
     public Constraint_Propagation_AC3(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square (e.g., 4, 9, 16)");
@@ -19,6 +27,10 @@ public class Constraint_Propagation_AC3 {
         this.domains = createEmptyDomains();
     }
 
+    /**
+     * Creates an empty domain for each cell, initialized to contain all possible values from 1 to N.
+     * @return a 2D array of IntSet representing domains for each cell.
+     */
     private IntSet[][] createEmptyDomains() {
         IntSet[][] temp = new IntSet[N][N];
         for (int i = 0; i < N; i++)
@@ -27,11 +39,21 @@ public class Constraint_Propagation_AC3 {
         return temp;
     }
 
+    /**
+     * Solves the Sudoku puzzle using AC-3 and backtracking with forward checking.
+     * @param board the Sudoku board represented as a 2D int array, where 0 indicates empty cells.
+     * @return true if a solution is found; false otherwise.
+     */
     public boolean solve(int[][] board) {
         initializeDomains(board);
         return forwardCheck(board);
     }
 
+    /**
+     * Initializes the domains for each cell based on the current board.
+     * Clears all domains then assigns fixed values and prunes domains of peers.
+     * @param board the Sudoku board represented as a 2D int array.
+     */
     private void initializeDomains(int[][] board) {
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
@@ -58,6 +80,13 @@ public class Constraint_Propagation_AC3 {
         }
     }
 
+    /**
+     * Recursively performs backtracking search with forward checking.
+     * Selects an unassigned cell, tries possible values, enforces arc-consistency via AC-3,
+     * and continues until a solution is found or no valid assignments remain.
+     * @param board the current state of the Sudoku board.
+     * @return true if forward checking leads to a solution; false otherwise.
+     */
     private boolean forwardCheck(int[][] board) {
         int[] cell = selectUnassignedCell(board);
         if (cell == null) {
@@ -156,6 +185,11 @@ public class Constraint_Propagation_AC3 {
         return revised;
     }
 
+    /**
+     * Selects the unassigned cell with the smallest domain (MRV heuristic).
+     * @param board the current Sudoku board.
+     * @return an array [row, col] of the selected cell; null if all cells are assigned.
+     */
     private int[] selectUnassignedCell(int[][] board) {
         int minSize = Integer.MAX_VALUE;
         int[] best   = null;
@@ -173,6 +207,11 @@ public class Constraint_Propagation_AC3 {
         return best;
     }
 
+    /**
+     * Creates a deep copy of the Sudoku board.
+     * @param board the current board.
+     * @return a new 2D int array copy of the board.
+     */
     private int[][] copyBoard(int[][] board) {
         int[][] nb = new int[N][N];
         for (int i = 0; i < N; i++) {
@@ -181,12 +220,21 @@ public class Constraint_Propagation_AC3 {
         return nb;
     }
 
+    /**
+     * Restores the board to a previous state from backup.
+     * @param board the board to restore.
+     * @param backup the backup array containing previous state.
+     */
     private void restoreBoard(int[][] board, int[][] backup) {
         for (int i = 0; i < N; i++) {
             System.arraycopy(backup[i], 0, board[i], 0, N);
         }
     }
 
+    /**
+     * Creates a deep copy of the domains array.
+     * @return a new 2D array of IntSet copied from current domains.
+     */
     private IntSet[][] copyDomains() {
         IntSet[][] cp = new IntSet[N][N];
         for (int i = 0; i < N; i++) {
@@ -197,6 +245,14 @@ public class Constraint_Propagation_AC3 {
         return cp;
     }
 
+    /**
+     * Checks if assigning a value to a cell does not violate Sudoku constraints.
+     * @param board the current board.
+     * @param row the row index of the cell.
+     * @param col the column index of the cell.
+     * @param val the value to check.
+     * @return true if safe to assign; false otherwise.
+     */
     private boolean isSafe(int[][] board, int row, int col, int val) {
         for (int i = 0; i < N; i++) {
             if (board[row][i] == val || board[i][col] == val) {
@@ -215,6 +271,12 @@ public class Constraint_Propagation_AC3 {
         return true;
     }
 
+    /**
+     * Returns a list of peer positions for a given cell (same row, column, and subgrid).
+     * @param row the row index of the cell.
+     * @param col the column index of the cell.
+     * @return an IntArrayList of [row, col] pairs of peer cells.
+     */
     private IntArrayList getPeers(int row, int col) {
         IntArrayList peers = new IntArrayList(3 * N);
         for (int i = 0; i < N; i++) {
