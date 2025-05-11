@@ -19,7 +19,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
-    private static final long TIMEOUT_NANOS = 120_000_000_000L; // 120 seconds in nanoseconds
     private static final int DEFAULT_SIZE = 9; 
     
     /**

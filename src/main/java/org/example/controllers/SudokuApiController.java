@@ -3,7 +3,7 @@ package org.example.controllers;
 import org.example.models.SudokuBoardRequest;
 import org.example.models.SudokuException;
 import org.example.models.SudokuFormResponse;
-import org.example.services.ConstraintPropagationService;
+import org.example.services.RMIT_Sudoku_Solver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +24,12 @@ import java.util.concurrent.TimeoutException;
 public class SudokuApiController {
     private static final Logger logger = LoggerFactory.getLogger(SudokuApiController.class);
 
-    private final ConstraintPropagationService solverService;
+    private final RMIT_Sudoku_Solver solverService;
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private static final long TIMEOUT_NANOS = 120_000_000_000L; // 120 seconds in nanoseconds
 
     @Autowired
-    public SudokuApiController(ConstraintPropagationService solverService) {
+    public SudokuApiController(RMIT_Sudoku_Solver solverService) {
         this.solverService = solverService;
     }
 

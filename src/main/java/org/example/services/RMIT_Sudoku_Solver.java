@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * AC3 and undo-stack optimizations are omitted for simplicity; forward-checking with fixpoint propagation provides good performance.
  */
 @Service
-public final class ConstraintPropagationService {
+public final class RMIT_Sudoku_Solver {
 
     /**
      * Solves the given Sudoku puzzle using optimized constraint propagation.
