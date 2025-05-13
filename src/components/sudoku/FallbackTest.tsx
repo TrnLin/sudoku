@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 
 const FallbackTest = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleTimeoutTest = async () => {
@@ -11,36 +11,54 @@ const FallbackTest = () => {
     setError(null);
 
     try {
-      // Make a request with a deliberate 2 minute delay
-      await axios.post("/api/solve", {
-        board: [[1]], // Minimal board for testing
-      }, {
-        timeout: 10000 // 2 minutes in milliseconds
-      });
-    } catch (err) {
-      setError(
-        axios.isAxiosError(err) && err.code === "ECONNABORTED"
-          ? "Request timed out after 2 minutes"
-          : "An error occurred"
+      // Make a request with a deliberate 2 minute delay (120000 ms)
+      await axios.post(
+        "/api/solve",
+        {
+          board: [
+            [1, 1, 3, 4, 5, 6, 7, 8, 9],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          ],
+        },
+        { timeout: 10000 }
       );
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(
+          err.code === "ECONNABORTED"
+            ? "Request timed out after 2 minutes"
+            : err.message
+        );
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-white shadow-md rounded p-6 w-full h-min ring-2 ring-neutral-200">
-      <h2 className="text-xl font-semibold ">Timeout Test</h2>
-        <p className='text-neutral-600'>Simulate solving timeout</p>
+    <div className='bg-white shadow-md rounded p-6 w-full h-min ring-2 ring-neutral-200'>
+      <h2 className='text-xl font-semibold'>Timeout Test</h2>
+      <p className='text-neutral-600'>
+        Simulate a solving process with a timeout
+      </p>
       <Button
         onClick={handleTimeoutTest}
         disabled={isLoading}
-        className="w-full mt-4"
+        className='w-full mt-4'
       >
-        {isLoading ? "Testing..." : "Test 2 minutes Timeout"}
+        {isLoading ? "Testing..." : "Test 2 Minutes Timeout"}
       </Button>
       {error && (
-        <p className="text-red-500 mt-4 text-sm" role="alert">
+        <p className='text-red-500 mt-4 text-sm' role='alert'>
           {error}
         </p>
       )}
