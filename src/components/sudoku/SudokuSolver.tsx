@@ -27,7 +27,7 @@ const SudokuSolver: React.FC<SudokuSolverProps> = ({
   error,
 }) => {
   return (
-    <div className='mt-4 bg-white shadow-md rounded p-6 w-full h-min ring-2 ring-neutral-200'>
+    <div className='bg-white shadow-md rounded p-6 w-full h-min ring-2 ring-neutral-200'>
       <h2 className='text-xl font-semibold'>Solve Sudoku</h2>
       <div className=' flex flex-col justify-between '>
         <p className='text-neutral-500'>Solve Time</p>

@@ -3,6 +3,7 @@ import { generatePuzzle } from "./generateSudoku";
 import SudokuGenerator from "./components/sudoku/SudokuGenerator";
 import SudokuSolver from "./components/sudoku/SudokuSolver";
 import SudokuGrid from "./components/sudoku/SudokuBoard";
+import FallbackTest from "@/components/sudoku/FallbackTest.tsx";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -185,7 +186,7 @@ const App: React.FC = () => {
   return (
     <section className='min-h-lvh'>
       <div className='grid grid-cols-[minmax(250px,_1fr)_3fr] gap-4 p-4 w-full min-h-lvh'>
-        <div>
+        <div className='flex flex-col gap-4'>
           <SudokuGenerator
             onGenerate={handleGenerate}
             isGenerating={isGenerating}
@@ -202,6 +203,8 @@ const App: React.FC = () => {
             hasBoard={board?.length > 0}
             error={errorSolver}
           />
+          <FallbackTest />
+
         </div>
 
         <div className='bg-white shadow-md rounded p-6 w-full ring-2 ring-neutral-200 h-[calc(100lvh-2rem)] grid place-items-center overflow-auto'>
