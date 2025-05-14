@@ -5,11 +5,25 @@ import org.example.models.IntList;
 import org.example.models.IntArrayList;
 import org.example.utils.BoardPrinter;
 
+/**
+ * Implements the constraint propagation algorithm for solving Sudoku puzzles.
+ * This algorithm uses forward checking and backtracking with domain reduction
+ * to efficiently find solutions by maintaining and propagating constraints.
+ */
 public class Constraint_Propagation {
+    /** The size of the board (N×N) */
     private final int N;
+    /** The size of each subgrid (√N×√N) */
     private final int SUBGRID;
+    /** Stores the possible values (domain) for each cell */
     private IntSet[][] domains;
 
+    /**
+     * Creates a new Constraint_Propagation solver for an N×N Sudoku board.
+     *
+     * @param N The size of the board (must be a perfect square like 4, 9, 16)
+     * @throws IllegalArgumentException if N is not a perfect square
+     */
     public Constraint_Propagation(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square (e.g., 4, 9, 16)");
@@ -19,6 +33,11 @@ public class Constraint_Propagation {
         this.domains = createEmptyDomains();
     }
 
+    /**
+     * Creates and initializes empty domains for all cells.
+     *
+     * @return A 2D array of IntSet representing empty domains
+     */
     private IntSet[][] createEmptyDomains() {
         IntSet[][] temp = new IntSet[N][N];
         for (int i = 0; i < N; i++)
@@ -27,11 +46,24 @@ public class Constraint_Propagation {
         return temp;
     }
 
+    /**
+     * Solves the given Sudoku board using constraint propagation.
+     *
+     * @param board The Sudoku board to solve (0 represents empty cells)
+     * @return true if a solution was found, false otherwise
+     */
     public boolean solve(int[][] board) {
         initializeDomains(board);
         return forwardCheck(board);
     }
 
+    /**
+     * Initializes the domains of all cells based on the initial board state.
+     * For filled cells, restricts domain to the single value.
+     * For empty cells, removes values that conflict with filled cells.
+     *
+     * @param board The initial Sudoku board
+     */
     private void initializeDomains(int[][] board) {
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
@@ -57,6 +89,13 @@ public class Constraint_Propagation {
         }
     }
 
+    /**
+     * Implements the forward checking algorithm with backtracking.
+     * Selects unassigned cells using MRV (Minimum Remaining Values) heuristic.
+     *
+     * @param board The current state of the Sudoku board
+     * @return true if a solution was found, false otherwise
+     */
     private boolean forwardCheck(int[][] board) {
         int[] cell = selectUnassignedCell(board);
         if (cell == null) return true;
@@ -92,6 +131,14 @@ public class Constraint_Propagation {
         return false;
     }
 
+    /**
+     * Propagates constraints by removing inconsistent values from domains.
+     * Implements arc consistency by ensuring all peers of filled cells
+     * don't have the same value in their domains.
+     *
+     * @param board The current state of the Sudoku board
+     * @return true if all domains remain non-empty, false otherwise
+     */
     private boolean propagateConstraints(int[][] board) {
         boolean changed;
         do {
@@ -117,6 +164,12 @@ public class Constraint_Propagation {
         return true;
     }
 
+    /**
+     * Selects an unassigned cell with the minimum domain size (MRV heuristic).
+     *
+     * @param board The current state of the Sudoku board
+     * @return An array [row, col] of the selected cell, or null if all cells are assigned
+     */
     private int[] selectUnassignedCell(int[][] board) {
         int minSize = Integer.MAX_VALUE;
         int[] selected = null;
@@ -136,6 +189,12 @@ public class Constraint_Propagation {
         return selected;
     }
 
+    /**
+     * Creates a deep copy of the board.
+     *
+     * @param board The board to copy
+     * @return A new board with the same values
+     */
     private int[][] copyBoard(int[][] board) {
         int[][] newBoard = new int[N][N];
         for (int i = 0; i < N; i++)
@@ -143,12 +202,23 @@ public class Constraint_Propagation {
         return newBoard;
     }
 
+    /**
+     * Restores the board state from a backup.
+     *
+     * @param board The board to restore
+     * @param backup The backup board to restore from
+     */
     private void restoreBoard(int[][] board, int[][] backup) {
         for (int i = 0; i < N; i++) {
             System.arraycopy(backup[i], 0, board[i], 0, N);
         }
     }
 
+    /**
+     * Creates a deep copy of all domains.
+     *
+     * @return A new 2D array of domains with the same values
+     */
     private IntSet[][] copyDomains() {
         IntSet[][] copy = new IntSet[N][N];
         for (int i = 0; i < N; i++)
@@ -157,6 +227,16 @@ public class Constraint_Propagation {
         return copy;
     }
 
+    /**
+     * Checks if a value can be safely placed in a cell without violating
+     * Sudoku constraints (row, column, and subgrid uniqueness).
+     *
+     * @param board The current state of the Sudoku board
+     * @param row The row of the cell
+     * @param col The column of the cell
+     * @param val The value to check
+     * @return true if the value can be safely placed, false otherwise
+     */
     private boolean isSafe(int[][] board, int row, int col, int val) {
         for (int i = 0; i < N; i++)
             if (board[row][i] == val || board[i][col] == val)
@@ -173,6 +253,13 @@ public class Constraint_Propagation {
         return true;
     }
 
+    /**
+     * Gets all cells that are constrained by the given cell (same row, column, or subgrid).
+     *
+     * @param row The row of the cell
+     * @param col The column of the cell
+     * @return A list of peer cell coordinates as [row, col] pairs
+     */
     private IntArrayList getPeers(int row, int col) {
         IntArrayList peers = new IntArrayList(3 * N);
 

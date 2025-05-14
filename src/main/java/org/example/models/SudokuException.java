@@ -2,6 +2,13 @@ package org.example.models;
 
 /**
  * Custom exception for Sudoku-related errors that preserves information about the board dimensions.
+ * <p>
+ * This exception is thrown when operations on a Sudoku board encounter errors such as
+ * invalid moves, unsolvable puzzles, or constraint violations. It retains the board size
+ * to provide context for error handling and reporting.
+ * </p>
+ * 
+ * @see org.example.models.SudokuBoard
  */
 public class SudokuException extends RuntimeException {
     private final int boardSize;

@@ -2,6 +2,10 @@ package org.example.algorithms;
 
 import org.example.utils.BoardPrinter;
 
+/**
+ * Implementation of Sudoku solver using backtracking algorithm with bit manipulation.
+ * This solver uses a minimum options heuristic to improve performance.
+ */
 public class BackTracking {
     private final int n;
     private final int blockSize;
@@ -10,6 +14,12 @@ public class BackTracking {
     private final int[] columns;
     private final int[] blocks;
 
+    /**
+     * Constructs a Sudoku solver with the given board.
+     *
+     * @param board The Sudoku board to solve (0 represents empty cells)
+     * @throws IllegalArgumentException if the board size doesn't have an integer square root
+     */
     public BackTracking(int[][] board) {
         this.board = board;
         this.n = board.length;
@@ -27,6 +37,10 @@ public class BackTracking {
         initialize();
     }
 
+    /**
+     * Initializes the bit arrays that track digit placement in rows, columns, and blocks.
+     * Each bit in the arrays represents whether a specific digit is already placed.
+     */
     private void initialize() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -41,14 +55,35 @@ public class BackTracking {
         }
     }
 
+    /**
+     * Calculates the block index for a given cell position.
+     *
+     * @param row The row index
+     * @param col The column index
+     * @return The block index (0 to n-1)
+     */
     private int getBlockIndex(int row, int col) {
         return (row / blockSize) * blockSize + (col / blockSize);
     }
 
+    /**
+     * Public method to solve the Sudoku puzzle.
+     *
+     * @return true if a solution was found, false otherwise
+     */
     public boolean solve() {
         return solveSudoku();
     }
 
+    /**
+     * Recursively solves the Sudoku puzzle using backtracking with minimum options heuristic.
+     * This method:
+     * 1. Finds the empty cell with the fewest possible candidate digits
+     * 2. Tries each candidate digit in that cell
+     * 3. Recurses until a solution is found or all possibilities are exhausted
+     *
+     * @return true if a solution was found, false otherwise
+     */
     private boolean solveSudoku() {
         int minOptions = Integer.MAX_VALUE;
         int targetRow = -1;

@@ -2,8 +2,19 @@ package org.example.algorithms;
 
 import org.example.utils.BoardPrinter;
 
+/**
+ * Implements a Sudoku solver using the recursive backtracking algorithm.
+ * This algorithm tries each possible value for each empty cell and backtracks
+ * when a contradiction is found.
+ */
 public class RecursiveBacktracking {
 
+    /**
+     * Solves the given Sudoku board using recursive backtracking.
+     * 
+     * @param board The Sudoku board to solve, represented as a 2D array
+     * @return true if a solution is found, false if no solution exists
+     */
     public boolean solve(int[][] board) {
         int N = board.length;
         int SRN = (int)Math.sqrt(N);
@@ -27,6 +38,17 @@ public class RecursiveBacktracking {
         return true;
     }
 
+    /**
+     * Checks if it's safe to place a number at a given position in the board.
+     * 
+     * @param row The row index
+     * @param col The column index
+     * @param num The number to check
+     * @param board The Sudoku board
+     * @param N The size of the board (N×N)
+     * @param SRN Square root of N, representing the size of a sub-grid
+     * @return true if it's safe to place the number, false otherwise
+     */
     private boolean isSafe(int row, int col, int num, int[][] board, int N, int SRN) {
         for (int x = 0; x < N; x++) {
             if (board[row][x] == num || board[x][col] == num) {

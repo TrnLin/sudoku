@@ -97,6 +97,15 @@ public final class RMIT_Sudoku_Solver {
         return result;
     }
 
+    /**
+     * Main search method implementing backtracking with constraint propagation.
+     *
+     * @param board the current board state (1D representation)
+     * @param domains bitmask of possible values for each cell
+     * @param n size of the sudoku grid
+     * @param peers precomputed peer lists for each cell
+     * @return true if a solution was found, false otherwise
+     */
     private static boolean search(int[] board, int[] domains, int n, int[][] peers) {
         int idx = selectUnassignedCell(board, domains, peers);
         if (idx == -1) {
@@ -156,6 +165,15 @@ public final class RMIT_Sudoku_Solver {
         return false;
     }
 
+    /**
+     * Performs forward checking by propagating constraints after a cell assignment.
+     *
+     * @param board the current board state (1D representation)
+     * @param domains bitmask of possible values for each cell
+     * @param n size of the sudoku grid
+     * @param peers precomputed peer lists for each cell
+     * @return true if the board remains consistent, false if a contradiction is found
+     */
     private static boolean propagate(int[] board, int[] domains, int n, int[][] peers) {
         boolean changed;
         do {
@@ -179,6 +197,15 @@ public final class RMIT_Sudoku_Solver {
         return true;
     }
 
+    /**
+     * Selects the next unassigned cell using MRV (Minimum Remaining Values) heuristic 
+     * with degree heuristic as a tie-breaker.
+     *
+     * @param board the current board state (1D representation)
+     * @param domains bitmask of possible values for each cell
+     * @param peers precomputed peer lists for each cell
+     * @return index of the selected cell, or -1 if all cells are assigned
+     */
     private static int selectUnassignedCell(int[] board, int[] domains, int[][] peers) {
         int minSize = Integer.MAX_VALUE;
         int bestIdx = -1;
@@ -202,6 +229,14 @@ public final class RMIT_Sudoku_Solver {
         return bestIdx;
     }
 
+    /**
+     * Computes the degree heuristic value for a cell (number of unassigned peers).
+     *
+     * @param board the current board state (1D representation)
+     * @param idx index of the cell to evaluate
+     * @param peers precomputed peer lists for each cell
+     * @return the number of unassigned peer cells
+     */
     private static int computeDegree(int[] board, int idx, int[][] peers) {
         int deg = 0;
         for (int peer : peers[idx]) {
@@ -212,6 +247,14 @@ public final class RMIT_Sudoku_Solver {
         return deg;
     }
 
+    /**
+     * Converts a 1-indexed value to its corresponding bitmask representation.
+     *
+     * @param v the value (1 to n)
+     * @param n size of the sudoku grid
+     * @return bitmask with the bit corresponding to the value set
+     * @throws SudokuException if the value is out of range
+     */
     private static int bit(int v, int n) {
         if (v < 1 || v > n) {
             throw new SudokuException("Value " + v + " out of range for grid size " + n, n);
@@ -219,6 +262,14 @@ public final class RMIT_Sudoku_Solver {
         return 1 << (v - 1);
     }
 
+    /**
+     * Builds the peer lists for each cell in the grid.
+     * Peers are cells in the same row, column, or subgrid.
+     *
+     * @param n size of the sudoku grid
+     * @param subgrid size of the subgrid (sqrt of n)
+     * @return 2D array where peers[i] contains the indices of all peers of cell i
+     */
     private static int[][] buildPeers(int n, int subgrid) {
         int[][] peers = new int[n * n][];
         for (int idx = 0; idx < n * n; idx++) {

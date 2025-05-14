@@ -1,5 +1,9 @@
 package org.example.utils;
 
+/**
+ * Utility class for printing Sudoku boards to the console.
+ * Provides methods for both simple and formatted board output.
+ */
 public class BoardPrinter {
     
     /**
@@ -50,6 +54,12 @@ public class BoardPrinter {
         printSeparator(N, blockSize);
     }
     
+    /**
+     * Prints a horizontal separator line for the formatted board display.
+     * 
+     * @param N The size of the board (N x N)
+     * @param blockSize The size of each block in the board
+     */
     private static void printSeparator(int N, int blockSize) {
         System.out.print("+");
         for (int i = 0; i < blockSize; i++) {

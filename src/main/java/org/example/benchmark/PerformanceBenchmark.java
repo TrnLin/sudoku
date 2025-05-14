@@ -15,12 +15,20 @@ import org.example.services.RMIT_Sudoku_Solver;
 
 import java.util.Arrays;
 
+/**
+ * A performance benchmarking class for comparing various Sudoku solver algorithms.
+ * This class measures execution time and provides statistics for different optimization strategies.
+ */
 public class PerformanceBenchmark {
     
-    // Number of times to run each algorithm for better average measurements
+    /**
+     * Number of times to run each algorithm for better average measurements.
+     */
     private static final int ITERATIONS = 5;
     
-    // Test puzzles of different sizes
+    /**
+     * Test puzzles of different sizes. Currently contains a 9x9 Sudoku puzzle.
+     */
     private static final int[][] PUZZLE_9x9 = {
             {0, 0, 0, 8, 6, 4, 0, 0, 0},
             {0, 1, 0, 0, 3, 9, 0, 0, 8},
@@ -33,6 +41,11 @@ public class PerformanceBenchmark {
             {8, 0, 7, 6, 0, 3, 0, 2, 0}
     };
     
+    /**
+     * Main method to run all Sudoku solver benchmarks.
+     * 
+     * @param args Command line arguments (not used)
+     */
     public static void main(String[] args) {
         System.out.println("=== Sudoku Solver Performance Test ===\n");
         
@@ -41,6 +54,12 @@ public class PerformanceBenchmark {
         runBenchmark(9, PUZZLE_9x9);
     }
     
+    /**
+     * Runs performance benchmarks for all implemented Sudoku solver algorithms.
+     * 
+     * @param size Size of the puzzle (e.g., 9 for a 9x9 puzzle)
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void runBenchmark(int size, int[][] puzzle) {
         System.out.println("Original Constraint Propagation:");
         testConstraintPropagation(size, copyPuzzle(puzzle));
@@ -76,6 +95,12 @@ public class PerformanceBenchmark {
         testConstraintPropagationService(size, copyPuzzle(puzzle));
     }
     
+    /**
+     * Tests the base Constraint Propagation algorithm.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagation(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -105,6 +130,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with Bitset optimization.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationBitset(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -128,6 +159,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with Undo Stack optimization.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationUndostack(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -151,6 +188,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with AC3 optimization.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationAC3(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -174,6 +217,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with BitMask optimization.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationBitMask(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -197,6 +246,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with Inline and Finalize optimizations.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationInlineAndFinalize(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -220,6 +275,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with Iterative Deepening optimization.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationIterativeDeepening(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -243,6 +304,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with Precomputed Peers optimization.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationPrecomputedPeers(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -266,6 +333,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with Minimum Remaining Values and Degree heuristics.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationMRVDegree(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -289,6 +362,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the Constraint Propagation algorithm with Least Constraining Value heuristic.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationLCV(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         
@@ -312,6 +391,12 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Tests the RMIT_Sudoku_Solver service implementation.
+     * 
+     * @param size Size of the puzzle
+     * @param puzzle 2D array representing the Sudoku puzzle to solve
+     */
     private static void testConstraintPropagationService(int size, int[][] puzzle) {
         long[] times = new long[ITERATIONS];
         for (int i = 0; i < ITERATIONS; i++) {
@@ -329,6 +414,11 @@ public class PerformanceBenchmark {
         printStatistics(times);
     }
     
+    /**
+     * Prints statistical data about the execution times.
+     * 
+     * @param times Array of execution times in nanoseconds
+     */
     private static void printStatistics(long[] times) {
         // Calculate statistics
         long minTime = Arrays.stream(times).min().orElse(0);
@@ -341,6 +431,12 @@ public class PerformanceBenchmark {
         System.out.printf("  Avg: %.2f ms\n", avgTime / 1_000_000.0);
     }
     
+    /**
+     * Creates a deep copy of a 2D integer array.
+     * 
+     * @param original The original puzzle array to copy
+     * @return A new array with the same contents as the original
+     */
     private static int[][] copyPuzzle(int[][] original) {
         int[][] copy = new int[original.length][];
         for (int i = 0; i < original.length; i++) {

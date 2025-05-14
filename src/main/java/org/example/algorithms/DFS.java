@@ -2,6 +2,10 @@ package org.example.algorithms;
 
 import org.example.utils.BoardPrinter;
 
+/**
+ * Implementation of Depth-First Search algorithm to solve Sudoku puzzles.
+ * Uses backtracking approach to find a valid solution.
+ */
 public class DFS {
     /**
      * Solves the given Sudoku board using backtracking algorithm.
@@ -17,6 +21,12 @@ public class DFS {
         return result;
     }
 
+    /**
+     * Recursively attempts to fill empty cells in the Sudoku board.
+     * 
+     * @param board The Sudoku board to solve.
+     * @return true if a valid solution is found, false otherwise.
+     */
     private boolean backtrack(int[][] board) {
         int N = board.length;
         int SRN = (int) Math.sqrt(N);
@@ -39,6 +49,15 @@ public class DFS {
         return true;
     }
 
+    /**
+     * Checks if placing a number at a specific position is valid.
+     * 
+     * @param board The Sudoku board.
+     * @param row The row index to check.
+     * @param col The column index to check.
+     * @param c The number to validate.
+     * @return true if the number can be placed at the position, false otherwise.
+     */
     private boolean isValid(int[][] board, int row, int col, int c) {
         int N = board.length;
         int SRN = (int) Math.sqrt(N);

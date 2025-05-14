@@ -19,6 +19,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * REST controller that provides API endpoints for solving Sudoku puzzles.
+ * This controller handles Sudoku puzzle validation and solution with timeout protection.
+ */
 @RestController
 @RequestMapping("/api")
 public class SudokuApiController {
@@ -26,13 +30,28 @@ public class SudokuApiController {
 
     private final RMIT_Sudoku_Solver solverService;
     private final ExecutorService executor = Executors.newCachedThreadPool();
+    
+    /** Maximum time allowed for solving a puzzle in nanoseconds (120 seconds) */
     private static final long TIMEOUT_NANOS = 120_000_000_000L; // 120 seconds in nanoseconds
 
+    /**
+     * Creates a new SudokuApiController with the specified solver service.
+     *
+     * @param solverService The Sudoku solver implementation to use
+     */
     @Autowired
     public SudokuApiController(RMIT_Sudoku_Solver solverService) {
         this.solverService = solverService;
     }
 
+    /**
+     * Solves a Sudoku puzzle submitted via API request.
+     * The solution process is protected by a 2-minute timeout to prevent excessive resource consumption.
+     * If the puzzle cannot be solved within the timeout period, an empty board is returned.
+     *
+     * @param boardRequest The request containing the Sudoku board to solve
+     * @return A response containing either the solved board or an empty board with execution time
+     */
     @PostMapping("/solve")
     public SudokuFormResponse solveSudoku(@RequestBody SudokuBoardRequest boardRequest) {
         logger.info("Received Sudoku solve request");

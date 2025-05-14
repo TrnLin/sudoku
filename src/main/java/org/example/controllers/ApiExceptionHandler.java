@@ -15,14 +15,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+/**
+ * Global exception handler for the Sudoku API.
+ * Handles various exceptions and returns appropriate error responses.
+ */
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     
+    /** Logger for this class */
     private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
+    
+    /** Default board size to use when not specified or invalid */
     private static final int DEFAULT_SIZE = 9; 
     
     /**
      * Handle SudokuException specifically to extract the board size
+     * 
+     * @param ex The SudokuException that was thrown
+     * @return ResponseEntity containing both error details and an empty board
      */
     @ExceptionHandler(SudokuException.class)
     public ResponseEntity<Object> handleSudokuException(SudokuException ex) {
@@ -47,6 +57,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     
     /**
      * Override the method from ResponseEntityExceptionHandler to handle JSON parse errors
+     * 
+     * @param ex The exception for HTTP message not readable
+     * @param headers The headers for the response
+     * @param status The selected response status
+     * @param request The current request
+     * @return ResponseEntity with error details
      */
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
@@ -68,6 +84,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     
     /**
      * Fallback handler for all other exceptions
+     * 
+     * @param ex The exception that was thrown
+     * @return ResponseEntity with generic error details
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllExceptions(Exception ex) {

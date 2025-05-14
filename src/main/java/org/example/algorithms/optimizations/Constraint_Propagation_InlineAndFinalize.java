@@ -5,11 +5,25 @@ import org.example.models.IntList;
 import org.example.models.IntArrayList;
 import org.example.utils.BoardPrinter;
 
+/**
+ * Sudoku solver that uses constraint propagation and forward checking.
+ * This implementation uses inline optimization techniques and final methods
+ * for better performance.
+ */
 public class Constraint_Propagation_InlineAndFinalize {
+    /** The size of the board (N×N). */
     private final int N;
+    /** The size of each subgrid (√N). */
     private final int SUBGRID;
+    /** Stores the possible values (domain) for each cell. */
     private IntSet[][] domains;
 
+    /**
+     * Creates a new constraint propagation solver for a board of size N×N.
+     *
+     * @param N The size of the board (must be a perfect square)
+     * @throws IllegalArgumentException if N is not a perfect square
+     */
     public Constraint_Propagation_InlineAndFinalize(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square (e.g., 4, 9, 16)");
@@ -19,6 +33,11 @@ public class Constraint_Propagation_InlineAndFinalize {
         this.domains = createEmptyDomains();
     }
 
+    /**
+     * Creates empty domains for all cells on the board.
+     *
+     * @return A 2D array of empty IntSet objects
+     */
     private final IntSet[][] createEmptyDomains() {
         IntSet[][] temp = new IntSet[N][N];
         for (int i = 0; i < N; i++)
@@ -27,11 +46,22 @@ public class Constraint_Propagation_InlineAndFinalize {
         return temp;
     }
 
+    /**
+     * Solves the given Sudoku board.
+     *
+     * @param board The board to solve (0 represents empty cells)
+     * @return true if a solution was found, false otherwise
+     */
     public final boolean solve(int[][] board) {
         initializeDomains(board);
         return forwardCheck(board);
     }
 
+    /**
+     * Initializes the domains for all cells based on the initial board state.
+     *
+     * @param board The initial board state
+     */
     private final void initializeDomains(int[][] board) {
         for (int row = 0; row < N; row++) {
             for (int col = 0; col < N; col++) {
@@ -57,6 +87,12 @@ public class Constraint_Propagation_InlineAndFinalize {
         }
     }
 
+    /**
+     * Performs forward checking with backtracking to solve the puzzle.
+     *
+     * @param board The current board state
+     * @return true if a solution was found, false otherwise
+     */
     private final boolean forwardCheck(int[][] board) {
         int[] cell = selectUnassignedCell(board);
         if (cell == null) return true;
@@ -112,6 +148,12 @@ public class Constraint_Propagation_InlineAndFinalize {
         return false;
     }
 
+    /**
+     * Propagates constraints through the board after a cell assignment.
+     *
+     * @param board The current board state
+     * @return true if constraints are consistent, false if a contradiction is found
+     */
     private final boolean propagateConstraints(int[][] board) {
         boolean changed;
         do {
@@ -137,6 +179,12 @@ public class Constraint_Propagation_InlineAndFinalize {
         return true;
     }
 
+    /**
+     * Selects the next unassigned cell with the smallest domain.
+     *
+     * @param board The current board state
+     * @return An array containing [row, col] of the selected cell, or null if all cells are assigned
+     */
     private final int[] selectUnassignedCell(int[][] board) {
         int minSize = Integer.MAX_VALUE;
         int[] selected = null;
@@ -156,6 +204,12 @@ public class Constraint_Propagation_InlineAndFinalize {
         return selected;
     }
 
+    /**
+     * Creates a copy of the current board state.
+     *
+     * @param board The board to copy
+     * @return A new board with the same values
+     */
     private final int[][] copyBoard(int[][] board) {
         int[][] newBoard = new int[N][N];
         for (int i = 0; i < N; i++)
@@ -163,12 +217,23 @@ public class Constraint_Propagation_InlineAndFinalize {
         return newBoard;
     }
 
+    /**
+     * Restores a board to a previous state.
+     *
+     * @param board The board to restore
+     * @param backup The backup board state
+     */
     private final void restoreBoard(int[][] board, int[][] backup) {
         for (int i = 0; i < N; i++) {
             System.arraycopy(backup[i], 0, board[i], 0, N);
         }
     }
 
+    /**
+     * Creates a copy of the current domains.
+     *
+     * @return A new 2D array of IntSet objects with the same values
+     */
     private final IntSet[][] copyDomains() {
         IntSet[][] copy = new IntSet[N][N];
         for (int i = 0; i < N; i++)
@@ -177,6 +242,13 @@ public class Constraint_Propagation_InlineAndFinalize {
         return copy;
     }
 
+    /**
+     * Gets all cells that share a constraint with the given cell (same row, column, or subgrid).
+     *
+     * @param row The row of the cell
+     * @param col The column of the cell
+     * @return An IntArrayList containing [row, col] pairs of all peer cells
+     */
     private final IntArrayList getPeers(int row, int col) {
         IntArrayList peers = new IntArrayList(3 * N);
 
