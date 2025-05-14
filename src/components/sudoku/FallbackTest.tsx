@@ -13,7 +13,7 @@ const FallbackTest = () => {
     try {
       // Make a request with a deliberate 2 minute delay (120000 ms)
       await axios.post(
-        "/api/solve",
+        "/api/solves",
         {
           board: [
             [1, 1, 3, 4, 5, 6, 7, 8, 9],
@@ -31,11 +31,7 @@ const FallbackTest = () => {
       );
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setError(
-          err.code === "ECONNABORTED"
-            ? "Request timed out after 2 minutes"
-            : err.message
-        );
+        setError("Request timed out after 2 minutes");
       } else {
         setError("An unexpected error occurred");
       }
