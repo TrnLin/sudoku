@@ -2,7 +2,6 @@ package org.example.benchmark;
 
 import org.example.algorithms.Constraint_Propagation;
 import org.example.algorithms.optimizations.Constraint_Propagation_AC3;
-import org.example.algorithms.optimizations.Constraint_Propagation_Bitset;
 import org.example.algorithms.optimizations.Constraint_Propagation_Undostack;
 import org.example.algorithms.optimizations.Constraint_Propagation_InlineAndFinalize;
 import org.example.algorithms.optimizations.Constraint_Propagation_BitMask;
@@ -12,8 +11,6 @@ import org.example.algorithms.optimizations.Constraint_Propagation_MRV_Degree;
 import org.example.algorithms.optimizations.Constraint_Propagation_LCV;
 import org.example.utils.BoardPrinter;
 import org.example.services.RMIT_Sudoku_Solver;
-
-import java.util.Arrays;
 
 /**
  * A performance benchmarking class for comparing various Sudoku solver algorithms.
@@ -63,9 +60,6 @@ public class PerformanceBenchmark {
     private static void runBenchmark(int size, int[][] puzzle) {
         System.out.println("Original Constraint Propagation:");
         testConstraintPropagation(size, copyPuzzle(puzzle));
-        
-        System.out.println("Bitset optimization:");
-        testConstraintPropagationBitset(size, copyPuzzle(puzzle));
         
         System.out.println("Undo stack optimization:");
         testConstraintPropagationUndostack(size, copyPuzzle(puzzle));
@@ -124,35 +118,6 @@ public class PerformanceBenchmark {
                     System.out.println("  Solution:");
                     BoardPrinter.printBoardFormatted(puzzleCopy, null);
                 }
-            }
-        }
-        
-        printStatistics(times);
-    }
-    
-    /**
-     * Tests the Constraint Propagation algorithm with Bitset optimization.
-     * 
-     * @param size Size of the puzzle
-     * @param puzzle 2D array representing the Sudoku puzzle to solve
-     */
-    private static void testConstraintPropagationBitset(int size, int[][] puzzle) {
-        long[] times = new long[ITERATIONS];
-        
-        for (int i = 0; i < ITERATIONS; i++) {
-            int[][] puzzleCopy = copyPuzzle(puzzle);
-            
-            Constraint_Propagation_Bitset solver = new Constraint_Propagation_Bitset(size);
-            
-            long startTime = System.nanoTime();
-            boolean solved = solver.solve(puzzleCopy);
-            long endTime = System.nanoTime();
-            
-            times[i] = endTime - startTime;
-            
-            if (i == 0 && !solved) {
-                System.out.println("  Failed to solve the puzzle!");
-                return;
             }
         }
         
@@ -420,15 +385,73 @@ public class PerformanceBenchmark {
      * @param times Array of execution times in nanoseconds
      */
     private static void printStatistics(long[] times) {
-        // Calculate statistics
-        long minTime = Arrays.stream(times).min().orElse(0);
-        long maxTime = Arrays.stream(times).max().orElse(0);
-        long avgTime = Arrays.stream(times).sum() / ITERATIONS;
+        // Calculate statistics using custom IntList instead of Arrays.stream
+        long minTime = findMin(times);
+        long maxTime = findMax(times);
+        long avgTime = calculateAverage(times);
         
         // Print results
         System.out.printf("  Min: %.2f ms\n", minTime / 1_000_000.0);
         System.out.printf("  Max: %.2f ms\n", maxTime / 1_000_000.0);
         System.out.printf("  Avg: %.2f ms\n", avgTime / 1_000_000.0);
+    }
+    
+    /**
+     * Finds the minimum value in an array of longs.
+     * 
+     * @param array The array to search
+     * @return The minimum value
+     */
+    private static long findMin(long[] array) {
+        if (array.length == 0) {
+            return 0;
+        }
+        
+        long min = array[0];
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] < min) {
+                min = array[i];
+            }
+        }
+        return min;
+    }
+    
+    /**
+     * Finds the maximum value in an array of longs.
+     * 
+     * @param array The array to search
+     * @return The maximum value
+     */
+    private static long findMax(long[] array) {
+        if (array.length == 0) {
+            return 0;
+        }
+        
+        long max = array[0];
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > max) {
+                max = array[i];
+            }
+        }
+        return max;
+    }
+    
+    /**
+     * Calculates the average of values in an array of longs.
+     * 
+     * @param array The array of values
+     * @return The average value
+     */
+    private static long calculateAverage(long[] array) {
+        if (array.length == 0) {
+            return 0;
+        }
+        
+        long sum = 0;
+        for (int i = 0; i < array.length; i++) {
+            sum += array[i];
+        }
+        return sum / array.length;
     }
     
     /**
@@ -440,7 +463,10 @@ public class PerformanceBenchmark {
     private static int[][] copyPuzzle(int[][] original) {
         int[][] copy = new int[original.length][];
         for (int i = 0; i < original.length; i++) {
-            copy[i] = Arrays.copyOf(original[i], original[i].length);
+            copy[i] = new int[original[i].length];
+            for (int j = 0; j < original[i].length; j++) {
+                copy[i][j] = original[i][j];
+            }
         }
         return copy;
     }
