@@ -23,6 +23,12 @@ public final class RMIT_Sudoku_Solver {
      *
      * @param puzzle input Sudoku grid of any valid size, with 0 for empty cells.
      * @return solved Sudoku grid, or throws exception if unsolvable/invalid.
+     *
+     * Time Complexity:
+     *   - Preprocessing (peer construction and domain initialization): O(n^3).
+     *   - Search (backtracking with constraint propagation): worst-case exponential in number of empty cells.
+     * Space Complexity:
+     *   - O(n^3) dominated by peer list storage (peers size n^2 × O(n)); plus O(n^2) for board and domains.
      */
     public int[][] solve(int[][] puzzle) {
         if (puzzle == null || puzzle.length == 0) {
@@ -105,6 +111,12 @@ public final class RMIT_Sudoku_Solver {
      * @param n size of the sudoku grid
      * @param peers precomputed peer lists for each cell
      * @return true if a solution was found, false otherwise
+     *
+     * Time Complexity:
+     *   - Per assignment propagation: O(n^3).
+     *   - Overall worst-case time: exponential in number of empty cells due to backtracking search.
+     * Space Complexity:
+     *   - O(d * n^2) recursion stack depth and domain backups (worst-case O(n^4), where d is number of empty cells).
      */
     private static boolean search(int[] board, int[] domains, int n, int[][] peers) {
         int idx = selectUnassignedCell(board, domains, peers);
@@ -173,6 +185,9 @@ public final class RMIT_Sudoku_Solver {
      * @param n size of the sudoku grid
      * @param peers precomputed peer lists for each cell
      * @return true if the board remains consistent, false if a contradiction is found
+     *
+     * Time Complexity: O(n^3) per propagation cycle (looping through all cells and peers until stabilization).
+     * Space Complexity: O(1) constant extra space.
      */
     private static boolean propagate(int[] board, int[] domains, int n, int[][] peers) {
         boolean changed;
@@ -205,6 +220,9 @@ public final class RMIT_Sudoku_Solver {
      * @param domains bitmask of possible values for each cell
      * @param peers precomputed peer lists for each cell
      * @return index of the selected cell, or -1 if all cells are assigned
+     *
+     * Time Complexity: O(n^3) (iterates over n^2 cells and computes degree O(n) per unassigned cell).
+     * Space Complexity: O(1) constant extra space.
      */
     private static int selectUnassignedCell(int[] board, int[] domains, int[][] peers) {
         int minSize = Integer.MAX_VALUE;
@@ -236,6 +254,9 @@ public final class RMIT_Sudoku_Solver {
      * @param idx index of the cell to evaluate
      * @param peers precomputed peer lists for each cell
      * @return the number of unassigned peer cells
+     *
+     * Time Complexity: O(n) (iterates over peer list of size O(n)).
+     * Space Complexity: O(1) constant extra space.
      */
     private static int computeDegree(int[] board, int idx, int[][] peers) {
         int deg = 0;
@@ -254,6 +275,9 @@ public final class RMIT_Sudoku_Solver {
      * @param n size of the sudoku grid
      * @return bitmask with the bit corresponding to the value set
      * @throws SudokuException if the value is out of range
+     *
+     * Time Complexity: O(1) constant time bit operation.
+     * Space Complexity: O(1) constant extra space.
      */
     private static int bit(int v, int n) {
         if (v < 1 || v > n) {
@@ -269,6 +293,9 @@ public final class RMIT_Sudoku_Solver {
      * @param n size of the sudoku grid
      * @param subgrid size of the subgrid (sqrt of n)
      * @return 2D array where peers[i] contains the indices of all peers of cell i
+     *
+     * Time Complexity: O(n^3) (constructs peers for n^2 cells with O(n) work each).
+     * Space Complexity: O(n^3) due to peers array of size n^2 × O(n); plus O(n^2) for temporary seen array.
      */
     private static int[][] buildPeers(int n, int subgrid) {
         int[][] peers = new int[n * n][];
