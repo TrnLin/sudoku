@@ -294,7 +294,7 @@ public final class RMIT_Sudoku_Solver {
      * @param subgrid size of the subgrid (sqrt of n)
      * @return 2D array where peers[i] contains the indices of all peers of cell i
      *
-     * Time Complexity: O(n^3) (constructs peers for n^2 cells with O(n) work each).
+     * Time Complexity: O(n^4) (constructs peers for n^2 cells with O(n^2) work each due to seen array re-initialization).
      * Space Complexity: O(n^3) due to peers array of size n^2 × O(n); plus O(n^2) for temporary seen array.
      */
     private static int[][] buildPeers(int n, int subgrid) {
