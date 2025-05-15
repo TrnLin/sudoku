@@ -25,7 +25,7 @@ public final class RMIT_Sudoku_Solver {
      * @return solved Sudoku grid, or throws exception if unsolvable/invalid.
      *
      * Time Complexity:
-     *   - Preprocessing (peer construction and domain initialization): O(n^3).
+     *   - Preprocessing (peer construction and domain initialization): O(n^4) (peer construction dominates).
      *   - Search (backtracking with constraint propagation): worst-case exponential in number of empty cells.
      * Space Complexity:
      *   - O(n^3) dominated by peer list storage (peers size n^2 × O(n)); plus O(n^2) for board and domains.
