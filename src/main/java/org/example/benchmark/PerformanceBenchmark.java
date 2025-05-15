@@ -29,7 +29,7 @@ public class PerformanceBenchmark {
     /**
      * Number of times to run each algorithm for better average measurements.
      */
-    private static final int ITERATIONS = 5;
+    private static final int ITERATIONS = 20;
     
     /**
      * Test puzzles of different sizes. Currently contains a 9x9 Sudoku puzzle.
