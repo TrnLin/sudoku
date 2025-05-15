@@ -1,14 +1,22 @@
-/**
- * Implements a constraint propagation solver for Sudoku with Least Constraining Value (LCV) heuristic.
- * This solver uses forward checking with constraint propagation to efficiently solve Sudoku puzzles.
- * The LCV heuristic prioritizes values that constrain the fewest peer cells.
+/*
+ * Authors:
+ * Tran Quoc Hung - S4027060 
+ * Tran Hoang Linh - S4043097 
+ * Le Tuan Hung - S4069761 
+ * Nguyen Viet Son - S4052257
  */
+
 package org.example.algorithms.optimizations;
 
 import org.example.models.IntSet;
 import org.example.models.IntList;
 import org.example.models.IntArrayList;
 
+/**
+ * Implements a constraint propagation solver for Sudoku with Least Constraining Value (LCV) heuristic.
+ * This solver uses forward checking with constraint propagation to efficiently solve Sudoku puzzles.
+ * The LCV heuristic prioritizes values that constrain the fewest peer cells.
+ */
 public class Constraint_Propagation_LCV {
     /** The size of the Sudoku grid (NxN) */
     private final int N;

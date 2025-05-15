@@ -1,3 +1,11 @@
+/*
+ * Authors:
+ * Tran Quoc Hung - S4027060 
+ * Tran Hoang Linh - S4043097 
+ * Le Tuan Hung - S4069761 
+ * Nguyen Viet Son - S4052257
+ */
+
 package org.example.models;
 
 /**
