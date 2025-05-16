@@ -29,26 +29,22 @@ const SudokuGenerator: React.FC<SudokuGeneratorProps> = ({
   const gridSize = parseInt(n, 10) || 0;
 
   const handleGenerateClick = useCallback(() => {
+    if (isManualMode && onManualBoardChange) {
+      const size = gridSize * gridSize;
+      const newBoard = Array(size)
+        .fill(0)
+        .map(() => Array(size).fill(0));
+      onManualBoardChange(newBoard);
+    }
     onGenerate(gridSize);
-  }, [gridSize, onGenerate]);
+  }, [gridSize, onGenerate, isManualMode, onManualBoardChange]);
 
   const handleNChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = event.target.value;
       setN(newValue);
-      // If manual mode is active, update the board size accordingly.
-      if (isManualMode) {
-        const newGridSize = parseInt(newValue, 10) || 0;
-        if (newGridSize >= MIN_GRID_SIZE && onManualBoardChange) {
-          const size = newGridSize * newGridSize;
-          const newBoard = Array(size)
-            .fill(0)
-            .map(() => Array(size).fill(0));
-          onManualBoardChange(newBoard);
-        }
-      }
     },
-    [isManualMode, onManualBoardChange]
+    []
   );
 
   // Disable generate button if input is empty or less than minimum grid size.
@@ -67,16 +63,8 @@ const SudokuGenerator: React.FC<SudokuGeneratorProps> = ({
   const handleModeChange = useCallback(
     (checked: boolean) => {
       onManualModeChange(checked);
-      // When enabling manual mode, generate and push an empty board.
-      if (checked && onManualBoardChange) {
-        const size = gridSize * gridSize;
-        const newBoard = Array(size)
-          .fill(0)
-          .map(() => Array(size).fill(0));
-        onManualBoardChange(newBoard);
-      }
     },
-    [gridSize, onManualModeChange, onManualBoardChange]
+    [onManualModeChange]
   );
 
   return (

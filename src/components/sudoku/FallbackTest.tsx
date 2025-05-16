@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const FallbackTest = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
 
   const handleTimeoutTest = async () => {
     setIsLoading(true);
@@ -31,9 +41,13 @@ const FallbackTest = () => {
       );
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setError("Request timed out after 2 minutes");
+        setError(
+          "The provided sudoku puzzle is invalid or cannot be solved. The solving algorithm has exceeded the maximum allowed time of 2 minute.."
+        );
+        setShowDialog(true);
       } else {
         setError("An unexpected error occurred");
+        setShowDialog(true);
       }
     } finally {
       setIsLoading(false);
@@ -53,11 +67,25 @@ const FallbackTest = () => {
       >
         {isLoading ? "Testing..." : "Test 2 Minutes Timeout"}
       </Button>
-      {error && (
-        <p className='text-red-500 mt-4 text-sm' role='alert'>
-          {error}
-        </p>
-      )}
+
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+        <AlertDialogContent className='border-red-500 bg-red-50'>
+          <AlertDialogHeader>
+            <AlertDialogTitle className='text-red-600'>Error</AlertDialogTitle>
+            <AlertDialogDescription className='text-red-500'>
+              {error}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => setShowDialog(false)}
+              className='bg-red-500 hover:bg-red-600 text-white'
+            >
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

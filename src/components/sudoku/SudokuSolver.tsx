@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form"; // Import UseFormReturn
 import { z } from "zod";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Define the schema shape expected by the form
 export const FormSchema = z.object({
@@ -26,6 +35,14 @@ const SudokuSolver: React.FC<SudokuSolverProps> = ({
   hasBoard,
   error,
 }) => {
+  const [showDialog, setShowDialog] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      setShowDialog(true);
+    }
+  }, [error]);
+
   return (
     <div className='bg-white shadow-md rounded p-6 w-full h-min ring-2 ring-neutral-200'>
       <h2 className='text-xl font-semibold'>Solve Sudoku</h2>
@@ -65,7 +82,28 @@ const SudokuSolver: React.FC<SudokuSolverProps> = ({
           />
         </form>
       </Form>
-      {error && <p className='text-red-500 mt-4'>{error}</p>}
+      {error && (
+        <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+          <AlertDialogContent className='border-red-500 bg-red-50'>
+            <AlertDialogHeader>
+              <AlertDialogTitle className='text-red-600'>
+                Error
+              </AlertDialogTitle>
+              <AlertDialogDescription className='text-red-500'>
+                {error}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction
+                onClick={() => setShowDialog(false)}
+                className='bg-red-500 hover:bg-red-600 text-white'
+              >
+                Close
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
