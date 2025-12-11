@@ -56,6 +56,7 @@ const App: React.FC = () => {
         setBoard(newBoard);
         setFixedCells(newBoard.map((row) => row.map(() => false)));
         console.log("newBoard", newBoard);
+        console.log("fixedCells", fixedCells);
       }
     },
     [currentN, initializeEmptyBoard]
