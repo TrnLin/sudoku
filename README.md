@@ -1,52 +1,48 @@
-# Sudoku Generator
+# Sudoku Application
 
-A React-based Sudoku puzzle generator with configurable grid sizes.
+## Contribution Score
 
-## Team Members
+| ID       | Student Name     | Score |
+|----------|------------------|-------|
+| S4027060 | Tran Quoc Hung   | 5     |
+| S4043097 | Tran Hoang Linh  | 5     |
+| S4052257 | Nguyen Viet Son  | 5     |
+| S4069761 | Le Tuan Hung     | 5     |
 
-| id       | Student Name |
-| -------- | ------------ |
-| s4027060 | Hung Tran    |
-| s4045097 | Linh Tran    |
-| s4052257 | Son Nguyen   |
-| s4069761 | Hung Tran    |
+## Technical Requirements
 
-## Prerequisites
-
-- Node.js (version 18 or higher)
-- npm (Node Package Manager)
-
-## Installation
-
-1. Clone the repository:
-
-```sh
-git clone https://github.com/yourusername/sudoku.git
-cd sudoku
-```
-
-2. Install dependencies:
-
-```sh
-npm install
-```
+- Java Development Kit (JDK) 17
+- Maven 3.6 or higher (or use the included Maven Wrapper)
+- Spring Boot 2.x
+- (Optional) IDE such as IntelliJ IDEA, Eclipse, or VS Code
 
 ## Running the Application
 
-1. Start the development server:
+### Option 1: Run via IDE
 
-```sh
-npm run dev
+1. Open the project as a Maven project in your IDE.
+2. Navigate to `src/main/java/org/example/SodokuApplication.java`.
+3. Run the `main` method in the `SodokuApplication` class.
+
+### Option 2: Run via Maven
+
+From the project root:
+
+```bash
+mvn spring-boot:run
 ```
 
-2. Open your browser and navigate to http://localhost:3000
+### Option 3: Run via Maven Wrapper
 
-## Building for Production
-
-To create a production build:
-
-```sh
-npm run build
+On Unix/Linux/Mac:
+```bash
+./mvnw spring-boot:run
+```
+On Windows PowerShell:
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
 
-The built files will be in the `dist` directory.
+Once started, the application will be available at `http://localhost`.
+
+IMPORTANT: Final Algorithm Implementation is in `src/main/java/org/example/services/RMIT_Sudoku_Solver.java`. Researched Algorithm is in `src/main/java/org/example/algorithms`
