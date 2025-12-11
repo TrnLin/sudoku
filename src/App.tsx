@@ -55,6 +55,7 @@ const App: React.FC = () => {
         const newBoard = initializeEmptyBoard(currentN);
         setBoard(newBoard);
         setFixedCells(newBoard.map((row) => row.map(() => false)));
+        console.log("newBoard", newBoard);
       }
     },
     [currentN, initializeEmptyBoard]
@@ -126,9 +127,11 @@ const App: React.FC = () => {
       return;
     }
 
-    const isEmptyBoard = board.every(row => row.every(cell => cell === 0));
+    const isEmptyBoard = board.every((row) => row.every((cell) => cell === 0));
     if (isEmptyBoard) {
-      setErrorSolver("The board is empty. Please provide some numbers before solving.");
+      setErrorSolver(
+        "The board is empty. Please provide some numbers before solving."
+      );
       return;
     }
 
@@ -153,26 +156,33 @@ const App: React.FC = () => {
       const timeInMilliseconds = parseFloat((solveTime / 1_000_000).toFixed(3));
 
       // Validate solver response
-      if (!solveBoard?.length || solveBoard.every(row => row.every(cell => cell === 0))) {
+      if (
+        !solveBoard?.length ||
+        solveBoard.every((row) => row.every((cell) => cell === 0))
+      ) {
         throw new Error("Solver returned an empty or invalid solution.");
       }
 
       // Check if solving took too long
       if (solveTime >= 120_000_000_000) {
-        setErrorSolver("The puzzle took too long to solve. Please try a smaller puzzle.");
+        setErrorSolver(
+          "The puzzle took too long to solve. Please try a smaller puzzle."
+        );
         return;
       }
 
       // Update UI with solution
       setBoard(solveBoard);
       setTime(timeInMilliseconds);
-      setFixedCells(solveBoard.map(row => row.map(() => true)));
+      setFixedCells(solveBoard.map((row) => row.map(() => true)));
     } catch (error) {
       console.error("Error solving puzzle:", error);
 
       // Enhanced error handling
       const message = axios.isAxiosError(error)
-        ? error.response?.data?.message || error.message || "Failed to solve the puzzle."
+        ? error.response?.data?.message ||
+          error.message ||
+          "Failed to solve the puzzle."
         : error instanceof Error
           ? error.message
           : "Failed to solve the puzzle.";
@@ -204,7 +214,6 @@ const App: React.FC = () => {
             error={errorSolver}
           />
           <FallbackTest />
-
         </div>
 
         <div className='bg-white shadow-md rounded p-6 w-full ring-2 ring-neutral-200 h-[calc(100lvh-2rem)] grid place-items-center overflow-auto'>
