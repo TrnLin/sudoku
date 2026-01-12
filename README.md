@@ -1,48 +1,67 @@
-# Sudoku Application
+# Sudoku Generator
 
-## Contribution Score
+A Java-based Sudoku puzzle generator that can create valid Sudoku puzzles of various sizes.
 
-| ID       | Student Name     | Score |
-|----------|------------------|-------|
-| S4027060 | Tran Quoc Hung   | 5     |
-| S4043097 | Tran Hoang Linh  | 5     |
-| S4052257 | Nguyen Viet Son  | 5     |
-| S4069761 | Le Tuan Hung     | 5     |
+## Team Members
 
-## Technical Requirements
+| ID       | Student Name |
+| -------- | ------------ |
+| s4027060 | Hung Tran    |
+| s4045097 | Linh Tran    |
+| s4052257 | Son Nguyen   |
+| s4069761 | Hung Tran    |
 
-- Java Development Kit (JDK) 17
-- Maven 3.6 or higher (or use the included Maven Wrapper)
-- Spring Boot 2.x
-- (Optional) IDE such as IntelliJ IDEA, Eclipse, or VS Code
+## Requirements
+
+- Java JDK 24 or higher
+- Maven 3.6 or higher
+
+## Installation
+
+1. Clone the repository:
+
+   ```powershell
+   git clone https://github.com/your-username/sudoku-1.git
+   cd sudoku-1\sudoku_gen_algo_test
+   ```
+
+2. Build the project using Maven:
+   ```powershell
+   mvn clean install
+   ```
 
 ## Running the Application
 
-### Option 1: Run via IDE
+### Generator 1 (Using Bit Masking)
 
-1. Open the project as a Maven project in your IDE.
-2. Navigate to `src/main/java/org/example/SodokuApplication.java`.
-3. Run the `main` method in the `SodokuApplication` class.
-
-### Option 2: Run via Maven
-
-From the project root:
-
-```bash
-mvn spring-boot:run
-```
-
-### Option 3: Run via Maven Wrapper
-
-On Unix/Linux/Mac:
-```bash
-./mvnw spring-boot:run
-```
-On Windows PowerShell:
 ```powershell
-.\mvnw.cmd spring-boot:run
+mvn exec:java -Dexec.mainClass="org.example.SudokuGenerator_test1"
 ```
 
-Once started, the application will be available at `http://localhost`.
+### Generator 2 (Using Backtracking)
 
-IMPORTANT: Final Algorithm Implementation is in `src/main/java/org/example/services/RMIT_Sudoku_Solver.java`. Researched Algorithm is in `src/main/java/org/example/algorithms`
+```powershell
+mvn exec:java -Dexec.mainClass="org.example.SudokuGenerator_test2"
+```
+
+## Usage
+
+1. When prompted, enter the base size 'n' (e.g., 3 for a 9x9 Sudoku puzzle)
+2. The program will generate a valid Sudoku puzzle and display it
+3. For Generator 2, it will also show a partially filled puzzle suitable for solving
+
+## Project Structure
+
+```
+sudoku-1/
+├── sudoku_gen_algo_test/
+│   ├── src/
+│   │   └── main/
+│   │       └── java/
+│   │           └── org/
+│   │               └── example/
+│   │                   ├── SudokuGenerator_test1.java
+│   │                   └── SudokuGenerator_test2.java
+│   └── pom.xml
+└── README.md
+```
